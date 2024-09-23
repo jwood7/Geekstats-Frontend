@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+// import { getCookie } from "../actions";
+import { getCookie } from 'cookies-next';
 
 export default function YourSummary(params: {isNight: boolean, stats: any}) {
     // need to store season/night data
@@ -17,7 +19,22 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
         Tier: <div className="bg-red-800 rounded-2xl px-5">None</div>,
     });
 
+    const [playerInfo, setPlayerInfo] = useState({
+        id: getCookie("userId")?.toString(),
+        name: getCookie("username")?.toString(),
+    })
+
     const [topWeapon, setTopWeapon] = useState({weapon_name: "", total_kills: 0});
+
+    async function handleLoginChange(){
+        const id =  getCookie("userId")?.toString() ?? '';
+        const name = getCookie("username")?.toString() ?? '';
+        setPlayerInfo({id: id, name: name})
+    }
+
+    useEffect(()=> {
+        handleLoginChange();
+    }, [getCookie("userId")]);
 
     const yourName = "Yakobay"; // pull this from login cookies eventually
     const yourId = 18;
@@ -29,7 +46,7 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
             return <div className="bg-silver rounded-2xl px-5">Silver</div>
         }else if (tierName === "Gold"){
             return <div className="bg-gold rounded-2xl px-5">Gold</div>
-        }else if (tierName === "Master"){
+        }else if (tierName === "West1: Master"){
             return <div className="bg-master rounded-2xl px-5">Master</div>
         }else{
             return <div className="bg-red-800 rounded-2xl px-5">None</div>
@@ -65,10 +82,14 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
     }
 
     useEffect(()=>{
-        if (params.stats.length > 0) getStats();
+        if (params.stats && params.stats.length > 0) getStats();
     }, [params.stats]);
 
     // getStats();
+
+    if ((playerInfo.id?.length ?? -1) <= 0){
+        return
+    }
 
     return <div className="dashboard-component rounded-xl overflow-hidden gap-2.5 drop-shadow-lg bg-white">
         <div className="your-summary-top bg-neutral-900 text-white flex flex-row px-4 gap-2.5 pt-5 pb-2.5">
@@ -76,7 +97,7 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
                 {process.env.NEXT_PUBLIC_IMAGE_URL && <img src={process.env.NEXT_PUBLIC_IMAGE_URL + "geeks/" + yourName + ".png"}/> }
             </div>
             <div >
-                <h1 className="font-bold text-2xl px-3">{yourName ? yourName + "'s ": "Your"} Summary</h1>
+                <h1 className="font-bold text-2xl px-3">{(playerInfo.name?.length ?? -1 )> 0 ? yourName + "'s ": "Your"} Summary</h1>
                 <div className="flex flex-row p-2.5 gap-2.5 text-xl">
                 
                     {Object.entries(yourStats).map(([stat, value]) => {
@@ -96,7 +117,7 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
                 <div  className="py-2.5">
                     <div className="font-bold">Top Weapon</div>
                     <div className="h-9 w-32">
-                    {(process.env.NEXT_PUBLIC_IMAGE_URL && topWeapon.weapon_name) && <img className="m-auto "src={process.env.NEXT_PUBLIC_IMAGE_URL + "weapons/" + topWeapon.weapon_name + ".png"}/> }
+                    {(process.env.NEXT_PUBLIC_IMAGE_URL && topWeapon.weapon_name) && <img className="m-auto" src={process.env.NEXT_PUBLIC_IMAGE_URL + "weapons/" + topWeapon.weapon_name + ".png"}/> }
                     </div>
                 </div>
             

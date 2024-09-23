@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useEffect, use } from "react";
-import YourHighlights from "./components/YourHighlights";
+import YourHighlights from "./components/yourHighlights";
 import YourSummary from "./components/yourSummary";
 import DataToggle from "./components/dataToggle";
-import Scoreboard from "./components/Scoreboard";
-import TeamRecap from "./components/TeamRecap";
+import Scoreboard from "./components/scoreboard";
+import TeamRecap from "./components/teamRecap";
 import Highlights from "./components/highlights";
 import { getSummaries, getDateInfo } from "./actions";
+import LoginButton from "./components/login";
 
 export default function Home() {
   const [isNightData, setIsNightData] = useState(true);
@@ -59,12 +60,13 @@ export default function Home() {
 
   return (
     <div className="">
-      <header>
+      <header className="flex justify-between items-center w-full">
         {process.env.NEXT_PUBLIC_IMAGE_URL ? <img className="max-w-lg p-2.5" src={process.env.NEXT_PUBLIC_IMAGE_URL + "gf_header.gif"}/> : <h1>Geekfest</h1>}
+        <LoginButton/>
       </header>
       <main className="flex flex-col gap-2.5 p-2.5 bg-neutral-200">
-        <div className="bg-red-800 rounded-xl flex flex-row justify-between font-bold drop-shadow-lg px-12 py-3">
-          <h1 className="text-white text-2xl">{parseDate(dateInfo.end_event_date) + dateInfo.season_info.season_name}</h1>
+        <div className="bg-red-800 rounded-xl flex flex-row justify-between font-bold drop-shadow-lg px-12 py-3 items-center">
+          <h1 className="text-white text-2xl">{dateInfo && (parseDate(dateInfo.end_event_date) + dateInfo.season_info.season_name)}</h1>
           <DataToggle isNight={isNightData} setIsNight={setIsNightData} setSummary={setSummaryData} night={nightData} season={seasonData}/>
         </div>
         <div>
