@@ -11,6 +11,9 @@ import { getSummaries, getDateInfo } from "./actions";
 import LoginButton from "./components/login";
 import { Electrolize } from 'next/font/google';
 
+
+const electrolize = Electrolize({weight: '400', subsets: ['latin']});
+
 export default function Home() {
   const [isNightData, setIsNightData] = useState(true);
   const [isMobile, setIsMobile] = useState(false); //useState(window.innerWidth <= 768); // this doesn't work properly, should probably use grid instead anyway
@@ -59,7 +62,6 @@ export default function Home() {
     handleDateAndSeasonSummaries();
   }, []);
 
-  const electrolize = Electrolize({weight: '400', subsets: ['latin']});
 
   return (
     <div className={electrolize.className}>
