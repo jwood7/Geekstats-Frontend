@@ -2,9 +2,18 @@
 
 import { cookies } from "next/headers";
 
+function addQueryParams(url: string, queryParams: any){
+    let separator = "?";
+    Object.entries(queryParams).map(([key, value]) => {
+        url = url + separator + key + "=" + value;
+        separator = "&"
+    });
+    return url;
+}
+
 export async function getSummaries(startDate?: string, endDate?:string){
     if (!process.env.API_URL) return;
-    let url = process.env.API_URL + "frags/summary-by-geek";
+    let url = process.env.API_URL + "/frags/summary-by-geek";
 
     if (startDate){
         url = url + "?start_date=" + startDate;
@@ -25,7 +34,7 @@ export async function getSummaries(startDate?: string, endDate?:string){
 
 export async function getDateInfo(startDate?: string, endDate?:string){
     if (!process.env.API_URL) return;
-    let url = process.env.API_URL + "date-round";
+    let url = process.env.API_URL + "/date-round";
     if (startDate){
         url = url + "?" + startDate;
     }
@@ -43,7 +52,7 @@ export async function getDateInfo(startDate?: string, endDate?:string){
 
 export async function login(user:string, password: string) {
     if (!process.env.API_URL) return;
-    let url = process.env.API_URL + "login/?username=" + user + "&password=" + password;
+    let url = process.env.API_URL + "/login/?username=" + user + "&password=" + password;
     try{
         console.log(url);
         const response = await fetch(url, {method:"POST"});
@@ -89,7 +98,7 @@ export async function logout() {
         const logoutResponse = await response.json();
         console.log(logoutResponse);
         if (logoutResponse.message != "Logged out successfully"){
-            return logoutResponse.detail;
+           throw logoutResponse;
         }
         cookies().delete('userId');
         cookies().delete('username');
@@ -97,9 +106,36 @@ export async function logout() {
 
     }catch(e){
         console.error(e);
+        return e;
     }
 }
 
 export async function getCookie(cookieName: string){
     return cookies().get(cookieName);
+}
+
+export async function getAwardsForGeek(queryParams : {geek_id: number, start_date?: string, end_date?: string, start?: string, end?: string}){
+    let url = process.env.API_URL + "/awards/geek";
+    url = addQueryParams(url, queryParams);
+    try {
+        const response = await fetch(url);
+        console.log(url, response);
+        const awardsForGeek = await response.json();
+        console.log(awardsForGeek);
+        return awardsForGeek.awards;
+    }catch(e){
+        console.error(e);
+    }
+}
+
+export async function getAwards(queryParams : {start_date?: string, end_date?: string, start?: string, end?: string}){
+    let url = process.env.API_URL + "/awards/date";
+    url = addQueryParams(url, queryParams);
+    try {
+        const response = await fetch(url);
+        const awards = await response.json();
+        return awards.awards;
+    }catch(e){
+        console.error(e);
+    }
 }

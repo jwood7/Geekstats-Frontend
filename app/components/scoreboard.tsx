@@ -60,12 +60,12 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
             <>
             <td className={" px-2 " + (row.kdr - row.year_kdr < 0 ? "text-red-500" : "text-green-600")}>{row.kdr - row.year_kdr > 0 && "+"}{(row.kdr - row.year_kdr).toFixed(2)}</td>
             <td className="px-2">
-            {(process.env.NEXT_PUBLIC_IMAGE_URL && row.top_weapon.weapon_name) && <img className="m-auto" src={process.env.NEXT_PUBLIC_IMAGE_URL + "weapons/" + row.top_weapon.weapon_name + ".png"}/> }
+            {(process.env.NEXT_PUBLIC_IMAGE_URL && row.top_weapon.weapon_name) && <img className="m-auto" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/weapons/" + row.top_weapon.weapon_name + ".png"}/> }
             
                 {/* <img src={row.top_weapon_img_url} alt="Top Weapon" className="h-6 w-auto mx-auto"/> */}
             </td>
             <td className=" px-2">{row.alltime_kdr}</td>
-            <td className=" px-2">{row.tier_name}</td>
+            <td className=" px-2">{row.tier_name == "West1: Master" ? "Master": row.tier_name}</td>
             </>
         )}
         
@@ -93,9 +93,9 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
             </div>
             <div className="flex">
                 <div className=" m-1">Filter: </div>
-                <div className="px-2.5  m-1 bg-silver rounded w-20 text-center" onClick={()=> setFilter("default")}>Default </div>
-                <div className="px-2.5  m-1 bg-silver rounded w-20 text-center" onClick={()=> setFilter("tier")}>Tier</div>
-                <div className="px-2.5  m-1 bg-silver rounded w-20 text-center" onClick={()=> setFilter("team")}>Team</div>
+                <button className="px-2.5  m-1 bg-silver rounded w-20 text-center" onClick={()=> setFilter("default")}>Default </button>
+                <button className="px-2.5  m-1 bg-silver rounded w-20 text-center" onClick={()=> setFilter("tier")}>Tier</button>
+                <button className="px-2.5  m-1 bg-silver rounded w-20 text-center" onClick={()=> setFilter("team")}>Team</button>
             </div>
           <div className="overflow-x-auto">
             <table className="min-w-full text-center">
@@ -121,7 +121,7 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
                       <th className=" px-2">Tier</th>
                     </>
                   )}
-                  <th className=" px-2" onClick={toggleView}>&#8596;</th>
+                  <th className=" px-2" onClick={toggleView}><button>&#8596;</button></th>
                 </tr>
               </thead>
               <tbody>
@@ -134,6 +134,13 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
           </tbody>
         </table>
       </div>
+      <div className="flex uppercase justify-center py-5"> TIER RESTRICTIONS:
+        <div className="px-2 bg-master">Master</div>
+        <div className="px-2 bg-gold">Gold</div>
+        <div className="px-2 bg-silver">Silver</div>
+        <div className="px-2 bg-bronze">Bronze</div>
+      </div>
+      <a className="flex justify-center underline" href="https://sites.google.com/view/gfxxv/rules#h.b735l0b8asys">View All Tier Restrictions and Rules</a>
     </div>
   );
 };

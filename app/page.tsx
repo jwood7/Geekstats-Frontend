@@ -9,6 +9,7 @@ import TeamRecap from "./components/teamRecap";
 import Highlights from "./components/highlights";
 import { getSummaries, getDateInfo } from "./actions";
 import LoginButton from "./components/login";
+import { Electrolize } from 'next/font/google';
 
 export default function Home() {
   const [isNightData, setIsNightData] = useState(true);
@@ -25,14 +26,14 @@ export default function Home() {
       season_end_event: "",
     }
   });
-  const pageComponents = [
-    <YourSummary isNight={isNightData} stats={summaryData}/>,
-    <YourHighlights isNight={isNightData}/>,
-    <Scoreboard isNight={isNightData} tableData={summaryData}/>,
-    <TeamRecap isNight={isNightData}/>,
-    <div></div>,
-    <Highlights isNight={isNightData}/>
-  ];
+  // const pageComponents = [
+  //   <YourSummary isNight={isNightData} stats={summaryData}/>,
+  //   <YourHighlights isNight={isNightData}/>,
+  //   <Scoreboard isNight={isNightData} tableData={summaryData}/>,
+  //   <TeamRecap isNight={isNightData}/>,
+  //   <div></div>,
+  //   <Highlights isNight={isNightData}/>
+  // ];
 
   async function handleNightSummaries(){
     const nightSummaries = await getSummaries();
@@ -58,19 +59,22 @@ export default function Home() {
     handleDateAndSeasonSummaries();
   }, []);
 
+  const electrolize = Electrolize({weight: '400', subsets: ['latin']});
+
   return (
-    <div className="">
+    <div className={electrolize.className}>
       <header className="flex justify-between items-center w-full">
-        {process.env.NEXT_PUBLIC_IMAGE_URL ? <img className="max-w-lg p-2.5" src={process.env.NEXT_PUBLIC_IMAGE_URL + "gf_header.gif"}/> : <h1>Geekfest</h1>}
+        {process.env.NEXT_PUBLIC_IMAGE_URL ? <img className="max-w-xs p-2.5" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/gf_header.gif"}/> : <h1>Geekfest</h1>}
         <LoginButton/>
       </header>
-      <main className="flex flex-col gap-2.5 p-2.5 bg-neutral-200">
+      <main className="bg-neutral-200">
+        <div className="m-auto flex flex-col gap-2.5 p-2.5 w-fit">
         <div className="bg-red-800 rounded-xl flex flex-row justify-between font-bold drop-shadow-lg px-12 py-3 items-center">
           <h1 className="text-white text-2xl">{dateInfo && (parseDate(dateInfo.end_event_date) + dateInfo.season_info.season_name)}</h1>
           <DataToggle isNight={isNightData} setIsNight={setIsNightData} setSummary={setSummaryData} night={nightData} season={seasonData}/>
         </div>
-        <div>
-          <div>
+        <div className="flex gap-2.5 flex-wrap justify-center">
+          {/* <div>
             {pageComponents.map( (component, index) => {
               if (!isMobile) return component;
               if (index%2 == 0){
@@ -86,7 +90,18 @@ export default function Home() {
                 }
               })}
             </div>
-          }
+          } */}
+          <div className="flex flex-col gap-2.5">
+            <YourSummary isNight={isNightData} stats={summaryData}/>
+            <Scoreboard isNight={isNightData} tableData={summaryData}/>
+
+          </div>
+          <div className="flex flex-col gap-2.5">
+            <YourHighlights isNight={isNightData} seasonStart={dateInfo.season_info.season_start_event} seasonEnd={dateInfo.season_info.season_end_event}/>
+            {/* <TeamRecap isNight={isNightData}/> */}
+            <Highlights isNight={isNightData} seasonStart={dateInfo.season_info.season_start_event} seasonEnd={dateInfo.season_info.season_end_event}/>
+          </div>
+        </div>
         </div>
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">

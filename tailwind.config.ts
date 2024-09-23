@@ -16,6 +16,9 @@ const config: Config = {
         silver: "#D7D7D7",
         bronze: "#A77044",
       },
+      fontFamily:{
+        sans:['var(--font-electrolize)']
+      }
     },
   },
   plugins: [],

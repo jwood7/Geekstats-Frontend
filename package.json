@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@next/font": "^14.2.13",
     "cookies-next": "^4.2.1",
     "next": "14.2.12",
     "react": "^18",
