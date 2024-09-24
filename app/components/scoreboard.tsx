@@ -1,11 +1,10 @@
-import { table } from "console";
 import { useState } from "react";
 import TierWinner from "./tierWinner";
 
 
 export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
     // console.log(params.tableData);
-    let tiers: {master:number[],  gold: number[], silver: number[], bronze: number[],} = { master: [],  gold: [], silver: [], bronze: [],};
+    const tiers: {master:number[],  gold: number[], silver: number[], bronze: number[],} = { master: [],  gold: [], silver: [], bronze: [],};
     let tierView: number[] = [];
     const [view, setView] = useState('default'); 
     const [filter, setFilter] = useState('default'); 

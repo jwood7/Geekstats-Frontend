@@ -52,7 +52,7 @@ export async function getDateInfo(startDate?: string, endDate?:string){
 
 export async function login(user:string, password: string) {
     if (!process.env.API_URL) return;
-    let url = process.env.API_URL + "/login/?username=" + user + "&password=" + password;
+    const url = process.env.API_URL + "/login/?username=" + user + "&password=" + password;
     try{
         console.log(url);
         const response = await fetch(url, {method:"POST"});
@@ -86,7 +86,7 @@ export async function login(user:string, password: string) {
 
 export async function logout() {
     if (!process.env.API_URL) return;
-    let url = process.env.API_URL;
+    const url = process.env.API_URL;
     try{
         // const csrfResponse = await fetch(url + "csrf-token/");
         // const csrf = await csrfResponse.json();

@@ -1,5 +1,5 @@
 export default function TierWinner(params: {player: any, getTierColor: (color: string) => string}) {
-    const flavorText = ["master and commander", "all that glitters", "more than a silver lining", "harder than hard"]
+    // const flavorText = ["master and commander", "all that glitters", "more than a silver lining", "harder than hard"]
     return <div className="rounded-xl bg-black text-white overflow-hidden w-48 m-1">
         
         <div className="flex">

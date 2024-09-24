@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { getAwards} from "../actions";
-import { getCookie } from "cookies-next";
 import Award, { AwardType }from "./award";
 
 export default function Highlights(params: {isNight: boolean, seasonStart: string, seasonEnd: string}) {
-    const placements = ["First", "Second", "Third", "Fourth", "Fifth"];
+    // const placements = ["First", "Second", "Third", "Fourth", "Fifth"];
     const [awardData, setAwardData] = useState<AwardType[]>([]);
     
     async function handleGetAward(){
@@ -34,7 +33,7 @@ export default function Highlights(params: {isNight: boolean, seasonStart: strin
         <h1 className="m-auto text-2xl text-center font-bold">Top Awards</h1>
         {/* <button onClick={()=>handleGetAward()}>Click to test</button> */}
         <div className="flex flex-col gap-2.5 py-2.5">
-            {awardData.map((award)  => {return <Award awardData={award}/>}) }
+            {awardData.map((award)  => {return <Award key={award.awardName} awardData={award}/>}) }
         </div>
     </div>
 }

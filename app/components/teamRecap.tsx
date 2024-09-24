@@ -1,3 +1,3 @@
-export default function TeamRecap(params: {isNight: boolean}) {
+export default function TeamRecap() {
     return <div>teamRecap</div>
 }

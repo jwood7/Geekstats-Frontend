@@ -4,11 +4,11 @@ import { getCookie } from "cookies-next";
 import Award, { AwardType }from "./award";
 
 export default function YourHighlights(params: {isNight: boolean, seasonStart: string, seasonEnd: string}) {
-    const placements = ["First", "Second", "Third", "Fourth", "Fifth"];
+    // const placements = ["First", "Second", "Third", "Fourth", "Fifth"];
     const [awardData, setAwardData] = useState<AwardType[]>([]);
     
     async function handleGetAward(){
-        let geek_id = getCookie("userId")?.toString();
+        const geek_id = getCookie("userId")?.toString();
         console.log("geek id", geek_id);
         if (geek_id){
             const queryParams = params.isNight ? {geek_id: parseInt(geek_id)} :  { geek_id: parseInt(geek_id), start_date: params.seasonStart, end_date: params.seasonEnd}
@@ -36,7 +36,7 @@ export default function YourHighlights(params: {isNight: boolean, seasonStart: s
         <h1 className="m-auto text-2xl text-center font-bold">Your Highlights</h1>
         {/* <button onClick={()=>handleGetAward()}>Click to test</button> */}
         <div className="flex flex-col gap-2.5 py-2.5">
-            {awardData.map((award)  => {return <Award awardData={award}/>}) }
+            {awardData.map((award)  => {return <Award key={award.awardName} awardData={award}/>}) }
         </div>
     </div>
 }

@@ -9,7 +9,7 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
         Deaths: "0",
         Assists: "0",
         ADR: "0",
-        vs_1yr: <p>"+0.00"</p>
+        vs_1yr: <p>+0.00</p>
     });
     const [ranks, setRanks] = useState({
         Rank: "0 of 0",
@@ -57,7 +57,7 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
         // should do this on the page page.
         const playerStats = params.stats.find((geek: { geek_id: number; }) => geek.geek_id === yourId);
         const kdrChange = parseFloat(playerStats.kdr) - parseFloat(playerStats.year_kdr);
-        let vs1yr=  kdrChange < 0 ? <p className="text-red-600">{"" + kdrChange.toFixed(2)}</p> : <p className="text-green-600">{"+" + kdrChange.toFixed(2)}</p>;
+        const vs1yr=  kdrChange < 0 ? <p className="text-red-600">{"" + kdrChange.toFixed(2)}</p> : <p className="text-green-600">{"+" + kdrChange.toFixed(2)}</p>;
         setYourStats({
             ...yourStats,
             KDR: playerStats.kdr,
@@ -98,7 +98,7 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
                 <div className="flex flex-row gap-2.5 text-lg">
                     {Object.entries(yourStats).map(([stat, value]) => {
                         return (
-                        <div className="p-2.5 text-center">
+                        <div key={stat} className="p-2.5 text-center">
                             <div className="font-bold"> {stat.replaceAll("_", " ")} </div>
                             <div> {value} </div>
                         </div>
@@ -116,7 +116,7 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
             
                 {Object.entries(ranks).map(([rank, value]) => {
                     return (
-                    <div className="p-2.5 text-center">
+                    <div key={rank} className="p-2.5 text-center">
                         <div className="font-bold">{rank.replaceAll("_", " ")}</div>
                         <div>{value}</div>
                     </div>
