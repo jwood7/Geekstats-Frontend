@@ -26,7 +26,7 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
     const [topWeapon, setTopWeapon] = useState({weapon_name: "", total_kills: 0});
 
     async function handleLoginChange(){
-        const id =  getCookie("userId")?.toString() ?? '';
+        const id =  getCookie("userId")?.toString() ?? "-1";
         const name = getCookie("username")?.toString() ?? '';
         setPlayerInfo({id: parseInt(id), name: name})
     }
@@ -52,6 +52,7 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
     async function getStats() {
         // with rank changes, we do not need to pass in every geek's stats to this component.
         // should do this on the page page.
+        if (playerInfo.id < 0) return;
         const playerStats = params.stats.find((geek: { geek_id: number; }) => geek.geek_id === playerInfo.id);
         const kdrChange = parseFloat(playerStats.kdr) - parseFloat(playerStats.year_kdr);
         const vs1yr=  kdrChange < 0 ? <p className="text-red-600">{"" + kdrChange.toFixed(2)}</p> : <p className="text-green-600">{"+" + kdrChange.toFixed(2)}</p>;
@@ -80,8 +81,8 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
     }, [params.stats]);
 
     // getStats();
-
-    if (playerInfo.id  < 0){
+    console.log(playerInfo.id);
+    if (playerInfo.id < 0){
         return <div></div>
     }
 

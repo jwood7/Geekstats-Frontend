@@ -98,7 +98,7 @@ export default function Home() {
             <Scoreboard isNight={isNightData} tableData={summaryData}/>
 
           </div>
-          <div className="flex flex-wrap lg:flex-col gap-2.5 items-center justify-center">
+          <div className="flex flex-wrap lg:flex-col gap-2.5 items-center justify-center lg:justify-start">
             <YourHighlights isNight={isNightData} seasonStart={dateInfo.season_info.season_start_event} seasonEnd={dateInfo.season_info.season_end_event}/>
             {/* <TeamRecap isNight={isNightData}/> */}
             <Highlights isNight={isNightData} seasonStart={dateInfo.season_info.season_start_event} seasonEnd={dateInfo.season_info.season_end_event}/>
