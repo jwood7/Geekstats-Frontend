@@ -19,7 +19,7 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
     });
 
     const [playerInfo, setPlayerInfo] = useState({
-        id: '',
+        id: -1,
         name: '',
     })
 
@@ -28,15 +28,12 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
     async function handleLoginChange(){
         const id =  getCookie("userId")?.toString() ?? '';
         const name = getCookie("username")?.toString() ?? '';
-        setPlayerInfo({id: id, name: name})
+        setPlayerInfo({id: parseInt(id), name: name})
     }
 
     useEffect(()=> {
         handleLoginChange();
     }, [getCookie("userId")]);
-
-    const yourName = "Yakobay"; // pull this from login cookies eventually
-    const yourId = 18;
 
     function getTier(tierName: string){
         if (tierName === "Bronze"){
@@ -55,7 +52,7 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
     async function getStats() {
         // with rank changes, we do not need to pass in every geek's stats to this component.
         // should do this on the page page.
-        const playerStats = params.stats.find((geek: { geek_id: number; }) => geek.geek_id === yourId);
+        const playerStats = params.stats.find((geek: { geek_id: number; }) => geek.geek_id === playerInfo.id);
         const kdrChange = parseFloat(playerStats.kdr) - parseFloat(playerStats.year_kdr);
         const vs1yr=  kdrChange < 0 ? <p className="text-red-600">{"" + kdrChange.toFixed(2)}</p> : <p className="text-green-600">{"+" + kdrChange.toFixed(2)}</p>;
         setYourStats({
@@ -75,8 +72,6 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
             Tier: getTier(playerStats.tier_name),
         });
         setTopWeapon(playerStats.top_weapon);
-        console.log(playerStats.top_weapon);
-        // TBD set mouseover/tooltip that says how many kills for top weapon and explains ranks
 
     }
 
@@ -86,15 +81,15 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
 
     // getStats();
 
-    if ((playerInfo.id?.length ?? -1) <= 0){
+    if (playerInfo.id  < 0){
         return <div></div>
     }
 
     return <div className="dashboard-component rounded-xl overflow-hidden gap-2.5 drop-shadow-lg bg-white">
         <div className="your-summary-top bg-neutral-900 text-white flex flex-row px-4 gap-2.5 pt-2">
-            <div className="h-24 w-24 bg-neutral-500 rounded-lg">{process.env.NEXT_PUBLIC_IMAGE_URL && <img src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/geeks/" + yourName.toLowerCase() + ".png"}/> }</div>
+            <div className="h-24 w-24 bg-neutral-500 rounded-lg">{process.env.NEXT_PUBLIC_IMAGE_URL && <img src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/geeks/" + playerInfo.name?.toLowerCase() + ".png"}/> }</div>
             <div >
-                <h1 className="font-bold text-2xl px-3">{(playerInfo.name?.length ?? -1 )> 0 ? yourName + "'s ": "Your"} Summary</h1>
+                <h1 className="font-bold text-2xl px-3">{(playerInfo.name?.length ?? -1 )> 0 ? playerInfo.name + "'s ": "Your"} Summary</h1>
                 <div className="flex flex-row gap-2.5 text-lg">
                     {Object.entries(yourStats).map(([stat, value]) => {
                         return (
@@ -111,7 +106,9 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
             <div className="flex flex-row gap-2.5 text-lg">
                 <div  className="py-2.5">
                     <div className="font-bold">Top Weapon</div>
-                    <div className="h-9 w-24">{(process.env.NEXT_PUBLIC_IMAGE_URL && topWeapon.weapon_name) && <img className="m-auto" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/Weapons/" + topWeapon.weapon_name + ".png"}/> }</div>
+                    <span title={topWeapon.total_kills + " kills with " + topWeapon.weapon_name}>
+                        <div className="h-9 w-24">{(process.env.NEXT_PUBLIC_IMAGE_URL && topWeapon.weapon_name) && <img className="m-auto" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/Weapons/" + topWeapon.weapon_name + ".png"}/> }</div>
+                    </span>
                 </div>
             
                 {Object.entries(ranks).map(([rank, value]) => {

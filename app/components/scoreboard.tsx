@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TierWinner from "./tierWinner";
+import { getTiers } from "../actions";
 
 
 export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
-    // console.log(params.tableData);
     const tiers: {master:number[],  gold: number[], silver: number[], bronze: number[],} = { master: [],  gold: [], silver: [], bronze: [],};
     let tierView: number[] = [];
     const [view, setView] = useState('default'); 
     const [filter, setFilter] = useState('default'); 
+    const [tierRestrictions, setTierRestrictions] = useState<{tier_id: number, tier_name: string, tier_description: string, tier_restrict_max: number, tier_weapon_restrict: string[], tier_armor_restrict:boolean[]}[] >([]); 
     
     function findTierWinners(){
         if (params.tableData){
@@ -23,8 +24,12 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
                 }
             }
             tierView = [...tiers.master, ...tiers.gold, ...tiers.silver, ...tiers.bronze]; 
-            // console.log(tierView);
         }
+    }
+
+    async function getTierRestrictions(){
+      const tierRestrictionsFromAPI = await getTiers();
+      setTierRestrictions(tierRestrictionsFromAPI);
     }
 
     function getTierColor(tierName: string){
@@ -59,9 +64,9 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
             <>
             <td className={" px-2 " + (row.kdr - row.year_kdr < 0 ? "text-red-500" : "text-green-600")}>{row.kdr - row.year_kdr > 0 && "+"}{(row.kdr - row.year_kdr).toFixed(2)}</td>
             <td className="px-2">
-            {(process.env.NEXT_PUBLIC_IMAGE_URL && row.top_weapon.weapon_name) && <img className="m-auto" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/Weapons/" + row.top_weapon.weapon_name + ".png"}/> }
-            
-                {/* <img src={row.top_weapon_img_url} alt="Top Weapon" className="h-6 w-auto mx-auto"/> */}
+            <span title={ row.top_weapon.total_kills + " kills with " +  row.top_weapon.weapon_name}>
+              {(process.env.NEXT_PUBLIC_IMAGE_URL && row.top_weapon.weapon_name) && <img className="m-auto max-h-6" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/Weapons/" + row.top_weapon.weapon_name + ".png"}/> }
+            </span>
             </td>
             <td className=" px-2">{row.alltime_kdr}</td>
             <td className=" px-2">{row.tier_name == "West1: Master" ? "Master": row.tier_name}</td>
@@ -78,12 +83,15 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
     const toggleView = () => {
         setView(view === 'default' ? 'extended' : 'default');
       };
+
+      useEffect(()=>{
+        getTierRestrictions()
+      }, []);
     
       return (
         <div className=" mx-auto p-4 rounded-2xl bg-white drop-shadow-xl w-full">
             <div className="flex justify-evenly w-full pb-2 flex-wrap">
                 {Object.values(tiers).map((tier)=>{
-                    // console.log("tier", tier);
                     if (tier.length > 0){
                         const player = params.tableData[tier[0]];
                         return <TierWinner key={player.geek_id} player={player} getTierColor={getTierColor}/>
@@ -133,11 +141,12 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
           </tbody>
         </table>
       </div>
-      <div className="flex uppercase justify-center py-5 font-bold"> TIER RESTRICTIONS: 
-        <div className="px-2 bg-master">Master</div>
-        <div className="px-2 bg-gold">Gold</div>
-        <div className="px-2 bg-silver">Silver</div>
-        <div className="px-2 bg-bronze">Bronze</div>
+      <div className="flex uppercase justify-center py-5 font-bold"> 
+        <p className="pr-1">TIER RESTRICTIONS: </p> 
+        {tierRestrictions.map((tier)=>{
+          const description = tier.tier_weapon_restrict.length < 1 ? "No restrictions" : "Cannot use " + tier.tier_weapon_restrict.map((weapon, index) => {return (index !=0 ? " " : "") + weapon}) + (tier.tier_armor_restrict ? " or armor" : "");
+          return <span title={description} key={tier.tier_id}><div className={"px-2 w-20 text-center " + getTierColor(tier.tier_name)}> {tier.tier_name == "West1: Master" ? "Master": tier.tier_name} </div></span>
+        })}
       </div>
       <a className="flex justify-center underline" href="https://sites.google.com/view/gfxxv/rules#h.b735l0b8asys">View All Tier Restrictions and Rules</a>
     </div>

@@ -119,9 +119,7 @@ export async function getAwardsForGeek(queryParams : {geek_id: number, start_dat
     url = addQueryParams(url, queryParams);
     try {
         const response = await fetch(url);
-        console.log(url, response);
         const awardsForGeek = await response.json();
-        console.log(awardsForGeek);
         return awardsForGeek.awards;
     }catch(e){
         console.error(e);
@@ -138,4 +136,17 @@ export async function getAwards(queryParams : {start_date?: string, end_date?: s
     }catch(e){
         console.error(e);
     }
+}
+
+export async function getTiers (tier_id?:string){
+    let url = process.env.API_URL + "/tier";
+    if (tier_id) url += "?tier_id=" + tier_id;
+    try {
+        const response = await fetch(url);
+        const tiers = await response.json();
+        return tiers;
+    }catch(e){
+        console.error(e);
+    }
+
 }
