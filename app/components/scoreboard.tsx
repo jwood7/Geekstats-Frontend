@@ -134,7 +134,7 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
           </tbody>
         </table>
       </div>
-      <div className="flex uppercase justify-center py-5"> TIER RESTRICTIONS:
+      <div className="flex uppercase justify-center py-5 font-bold"> TIER RESTRICTIONS: 
         <div className="px-2 bg-master">Master</div>
         <div className="px-2 bg-gold">Gold</div>
         <div className="px-2 bg-silver">Silver</div>

@@ -20,7 +20,7 @@ export default function YourHighlights(params: {isNight: boolean, seasonStart: s
                     color: award.award_category_color, 
                     rank: award.rank, 
                     description: award.award_name, 
-                    value: award.aggregation_value, 
+                    value: parseInt(award.aggregation_value), 
                     imagePath: award.award_image_path
                 }
             });

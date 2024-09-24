@@ -18,7 +18,7 @@ export default function Highlights(params: {isNight: boolean, seasonStart: strin
                 color: award.award_category_color, 
                 rank: award.rank, 
                 description: award.award_name, 
-                value: award.geeks[0].aggregation_value, 
+                value: parseInt(award.geeks[0].aggregation_value), 
                 imagePath: award.award_image_path,
                 player: award.geeks[0].geek_handle,
             }
