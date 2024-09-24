@@ -143,7 +143,7 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
       </div>
       <div className="flex uppercase justify-center py-5 font-bold"> 
         <p className="pr-1">TIER RESTRICTIONS: </p> 
-        {tierRestrictions.map((tier)=>{
+        {tierRestrictions && tierRestrictions.map((tier)=>{
           const description = tier.tier_weapon_restrict.length < 1 ? "No restrictions" : "Cannot use " + tier.tier_weapon_restrict.map((weapon, index) => {return (index !=0 ? " " : "") + weapon}) + (tier.tier_armor_restrict ? " or armor" : "");
           return <span title={description} key={tier.tier_id}><div className={"px-2 w-20 text-center " + getTierColor(tier.tier_name)}> {tier.tier_name == "West1: Master" ? "Master": tier.tier_name} </div></span>
         })}
