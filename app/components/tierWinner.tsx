@@ -5,7 +5,7 @@ export default function TierWinner(params: {player: any, getTierColor: (color: s
         <div className="flex">
             <div className="flex ">
                 <div className="h-20 w-20 overflow-hidden">
-                    {process.env.NEXT_PUBLIC_IMAGE_URL && <img alt={params.player.handle} src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/geeks/" + params.player.handle + ".png"}/> }
+                    {process.env.NEXT_PUBLIC_IMAGE_URL && <img alt={params.player.handle} src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/geeks/" + params.player.handle.toLowerCase() + ".png"}/> }
                 </div>
                 
             </div>
