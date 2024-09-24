@@ -70,8 +70,8 @@ export default function Home() {
         <LoginButton/>
       </header>
       <main className="bg-neutral-200">
-        <div className="m-auto flex flex-col gap-2.5 p-2.5 w-fit">
-        <div className="bg-red-800 rounded-xl flex flex-row justify-between font-bold drop-shadow-lg px-12 py-3 items-center">
+        <div className="m-auto flex flex-col gap-2.5 p-2.5 lg:w-fit">
+        <div className="bg-red-800 rounded-xl flex md:flex-row flex-col justify-between font-bold drop-shadow-lg px-12 py-3 items-center">
           <h1 className="text-white text-2xl">{dateInfo && (parseDate(dateInfo.end_event_date) + dateInfo.season_info.season_name)}</h1>
           <DataToggle isNight={isNightData} setIsNight={setIsNightData} setSummary={setSummaryData} night={nightData} season={seasonData}/>
         </div>
@@ -98,7 +98,7 @@ export default function Home() {
             <Scoreboard isNight={isNightData} tableData={summaryData}/>
 
           </div>
-          <div className="flex flex-col gap-2.5">
+          <div className="flex flex-wrap lg:flex-col gap-2.5 items-center justify-center">
             <YourHighlights isNight={isNightData} seasonStart={dateInfo.season_info.season_start_event} seasonEnd={dateInfo.season_info.season_end_event}/>
             {/* <TeamRecap isNight={isNightData}/> */}
             <Highlights isNight={isNightData} seasonStart={dateInfo.season_info.season_start_event} seasonEnd={dateInfo.season_info.season_end_event}/>

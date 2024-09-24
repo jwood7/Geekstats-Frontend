@@ -48,28 +48,28 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
 
     function createRow(row: any, index: number){
       return <tr key={index} className={getTierColor(row.tier_name)}>
-        <td className=" px-2">{row.rank}</td>
-        <td className=" px-2"><a href={"http://stats.geekfestclan.com/PlayerDetails?pid=" + row.geek_id}>{row.handle}</a></td>
+        <td className=" sm:px-2">{row.rank}</td>
+        <td className=" sm:px-2 underline"><a href={"http://stats.geekfestclan.com/PlayerDetails?pid=" + row.geek_id}>{row.handle}</a></td>
         {view === 'default' && (
             <>
-            <td className=" px-2">{row.total_kills}</td>
-            <td className=" px-2">{row.total_deaths}</td>
-            <td className=" px-2">{row.total_assists}</td>
-            <td className=" px-2">{row.kdr}</td>
-            {/* <td className=" px-2">{row.akdr}</td> */}
-            <td className=" px-2">{row.avg_total_damage}</td>
+            <td className=" sm:px-2">{row.total_kills}</td>
+            <td className=" sm:px-2">{row.total_deaths}</td>
+            <td className=" sm:px-2">{row.total_assists}</td>
+            <td className=" sm:px-2">{row.kdr}</td>
+            {/* <td className=" sm:px-2">{row.akdr}</td> */}
+            <td className=" sm:px-2">{row.avg_total_damage}</td>
             </>
         )}
         {view === 'extended' && (
             <>
-            <td className={" px-2 " + (row.kdr - row.year_kdr < 0 ? "text-red-500" : "text-green-600")}>{row.kdr - row.year_kdr > 0 && "+"}{(row.kdr - row.year_kdr).toFixed(2)}</td>
-            <td className="px-2">
+            <td className={" sm:px-2 " + (row.kdr - row.year_kdr < 0 ? "text-red-500" : "text-green-600")}>{row.kdr - row.year_kdr > 0 && "+"}{(row.kdr - row.year_kdr).toFixed(2)}</td>
+            <td className="sm:px-2">
             <span title={ row.top_weapon.total_kills + " kills with " +  row.top_weapon.weapon_name}>
               {(process.env.NEXT_PUBLIC_IMAGE_URL && row.top_weapon.weapon_name) && <img className="m-auto max-h-6" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/Weapons/" + row.top_weapon.weapon_name + ".png"}/> }
             </span>
             </td>
-            <td className=" px-2">{row.alltime_kdr}</td>
-            <td className=" px-2">{row.tier_name == "West1: Master" ? "Master": row.tier_name}</td>
+            <td className=" sm:px-2">{row.alltime_kdr}</td>
+            <td className=" sm:px-2">{row.tier_name == "West1: Master" ? "Master": row.tier_name}</td>
             </>
         )}
         
@@ -89,8 +89,9 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
       }, []);
     
       return (
-        <div className=" mx-auto p-4 rounded-2xl bg-white drop-shadow-xl w-full">
-            <div className="flex justify-evenly w-full pb-2 flex-wrap">
+        <div className=" mx-auto p-3 rounded-2xl bg-white drop-shadow-xl w-full text-xs sm:text-base">
+          <div className="text:xs sm:text-2xl font-bold text-center pb-1">Leaderboard {params.isNight ? "for the Night" : "for the Season"}</div>
+            <div className="flex justify-evenly w-full pb-2 flex-wrap flex-col sm:flex-row content-center">
                 {Object.values(tiers).map((tier)=>{
                     if (tier.length > 0){
                         const player = params.tableData[tier[0]];
@@ -108,27 +109,27 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
             <table className="min-w-full text-center">
               <thead>
                 <tr className="bg-black text-white">
-                  <th className=" px-2">Rank</th>
-                  <th className=" px-2">Player</th>
+                  <th className=" sm:px-2">Rank</th>
+                  <th className=" sm:px-2">Player</th>
                   {view === 'default' && (
                     <>
-                        <th className=" px-2">Kills</th>
-                        <th className=" px-2">Deaths</th>
-                        <th className=" px-2">Assists</th>
-                        <th className=" px-2">KDR</th>
-                        {/* <th className=" px-2">aKDR</th> */}
-                        <th className=" px-2">ADR</th>
+                        <th className=" sm:px-2">Kills</th>
+                        <th className=" sm:px-2">Deaths</th>
+                        <th className=" sm:px-2">Assists</th>
+                        <th className=" sm:px-2">KDR</th>
+                        {/* <th className=" sm:px-2">aKDR</th> */}
+                        <th className=" sm:px-2">ADR</th>
                     </>
                   )}
                   {view === 'extended' && (
                     <>
-                      <th className=" px-2">vs 1yr AVG</th>
-                      <th className=" px-2">Top Weapon</th>
-                      <th className=" px-2">All Time KDR</th>
-                      <th className=" px-2">Tier</th>
+                      <th className=" sm:px-2">vs 1yr AVG</th>
+                      <th className=" sm:px-2">Top Weapon</th>
+                      <th className=" sm:px-2">All Time KDR</th>
+                      <th className=" sm:px-2">Tier</th>
                     </>
                   )}
-                  <th className=" px-2" onClick={toggleView}><button>&#8596;</button></th>
+                  <th className=" sm:px-2" onClick={toggleView}><button>&#8596;</button></th>
                 </tr>
               </thead>
               <tbody>
@@ -141,7 +142,7 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
           </tbody>
         </table>
       </div>
-      <div className="flex uppercase justify-center py-5 font-bold"> 
+      <div className="flex uppercase justify-center py-5 font-bold flex-col sm:flex-row items-center"> 
         <p className="pr-1">TIER RESTRICTIONS: </p> 
         {tierRestrictions && tierRestrictions.map((tier)=>{
           const description = tier.tier_weapon_restrict.length < 1 ? "No restrictions" : "Cannot use " + tier.tier_weapon_restrict.map((weapon, index) => {return (index !=0 ? " " : "") + weapon}) + (tier.tier_armor_restrict ? " or armor" : "");
