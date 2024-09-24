@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import YourHighlights from "./components/yourHighlights";
 import YourSummary from "./components/yourSummary";
 import DataToggle from "./components/dataToggle";
 import Scoreboard from "./components/scoreboard";
-import TeamRecap from "./components/teamRecap";
+// import TeamRecap from "./components/teamRecap";
 import Highlights from "./components/highlights";
 import { getSummaries, getDateInfo } from "./actions";
 import LoginButton from "./components/login";
@@ -16,7 +16,7 @@ const electrolize = Electrolize({weight: '400', subsets: ['latin']});
 
 export default function Home() {
   const [isNightData, setIsNightData] = useState(true);
-  const [isMobile, setIsMobile] = useState(false); //useState(window.innerWidth <= 768); // this doesn't work properly, should probably use grid instead anyway
+  // const [isMobile, setIsMobile] = useState(false); //useState(window.innerWidth <= 768); // this doesn't work properly, should probably use grid instead anyway
   const [nightData, setNightData] = useState([]);
   const [seasonData, setSeasonData] = useState([]);
   const [summaryData, setSummaryData] = useState([]);
