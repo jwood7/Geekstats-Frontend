@@ -54,7 +54,7 @@ export default function Home() {
 
   function parseDate(date: string){
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    return months[parseInt(date.slice(5,7)) + 1] + " " + date.slice(-2) + ", " + date.slice(0,4) + ": ";
+    return months[parseInt(date.slice(5,7))-1] + " " + date.slice(-2) + ", " + date.slice(0,4) + ": ";
   }
 
   useEffect(()=>{

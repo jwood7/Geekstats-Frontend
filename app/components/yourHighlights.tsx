@@ -26,7 +26,6 @@ export default function YourHighlights(params: {isNight: boolean, seasonStart: s
                 }
             });
             setAwardData(awardsData);
-            console.log("awards data:", awardsData);
         }
     }
     useEffect(()=>{
