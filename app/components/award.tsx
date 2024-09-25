@@ -2,6 +2,19 @@ export type AwardType = {
     awardName: string, color: string, player?: string, rank: string, description: string, value: string | number, imagePath: string
 }
 
+function getPlace(rank: string){
+    if (rank == "1"){
+        return "First Place";
+    }else if (rank == "2"){
+        return "Second Place";
+    }else if (rank == "3"){
+        return "Third Place";
+    }else {
+        return rank+"th Place";
+    }
+
+}
+
 export default function Award(params: {awardData: {awardName: string, color: string, player?: string, rank: string, description: string, value: string | number, imagePath: string}}) {
     return <div className="rounded-xl overflow-hidden w-80 m-1 drop-shadow-lg m-auto bg-[#EAEAEA] ">
         
@@ -15,7 +28,7 @@ export default function Award(params: {awardData: {awardName: string, color: str
             <div className="w-full">
                 <div className= {"uppercase text-black font-bold text-xs p-1 w-full flex justify-between"} style={{backgroundColor: params.awardData.color}}>
                     {params.awardData.awardName}    
-                    <div className="bg-white h-5 w-5 rounded-full text-center flex items-center justify-center"> {params.awardData.rank} </div>
+                    <span title={getPlace(params.awardData.rank)}><button className="bg-white h-5 w-5 rounded-full text-center flex items-center justify-center"> {params.awardData.rank} </button></span>
                 </div>
                 {params.awardData.player ? 
                     <>
