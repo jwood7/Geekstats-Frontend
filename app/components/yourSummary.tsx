@@ -80,8 +80,6 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
         if (params.stats && params.stats.length > 0) getStats();
     }, [params.stats]);
 
-    // getStats();
-    console.log(playerInfo.id);
     if (playerInfo.id < 0){
         return <div></div>
     }

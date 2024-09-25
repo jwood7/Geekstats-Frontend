@@ -37,7 +37,6 @@ export default function YourHighlights(params: {isNight: boolean, seasonStart: s
     }, [params.isNight, getCookie("userId")]);
 
     function handleShowMore(){
-        console.log(showMore);
         if (showMore){
             setAwardData(awardData.slice(0,5));
         }else{

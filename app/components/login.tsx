@@ -62,12 +62,12 @@ export default function LoginModal(params: {setShowLogin: (show: boolean)=>void}
             <>
             <h1 className="text-2xl"> Log out </h1>
             <p> Are you sure you want to log out? </p>
-            <div className="bg-silver px-5 py-1 rounded" onClick={() => handleLogout()}>
+            <button className="bg-silver px-5 py-1 rounded" onClick={() => handleLogout()}>
                 Log out
-            </div>
+            </button>
             <div></div>
             </>
         }
         </div>
-        
+
 }
