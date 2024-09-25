@@ -115,12 +115,12 @@ export async function getCookie(cookieName: string){
 }
 
 export async function getAwardsForGeek(queryParams : {geek_id: number, start_date?: string, end_date?: string, start?: string, end?: string}){
-    let url = process.env.API_URL + "/awards/geek";
+    let url = process.env.API_URL + "/awards/top3-awards";
     url = addQueryParams(url, queryParams);
     try {
         const response = await fetch(url);
         const awardsForGeek = await response.json();
-        return awardsForGeek.awards;
+        return awardsForGeek;
     }catch(e){
         console.error(e);
     }
