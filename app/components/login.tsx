@@ -15,7 +15,7 @@ export default function LoginModal(params: {setShowLogin: (show: boolean)=>void}
                 const user = await login(username, password);
                 if (user.username){
                     setLoginError("");
-                    let userId = getCookie("userId")?.toString() ?? "-1";
+                    userId = getCookie("userId")?.toString() ?? "-1";
                     setLoggedIn(!(parseInt(userId) < 0));
                     params.setShowLogin(false);
                 }else{
@@ -29,7 +29,7 @@ export default function LoginModal(params: {setShowLogin: (show: boolean)=>void}
 
     async function handleLogout(){
         await logout();
-        let userId = getCookie("userId")?.toString() ?? "-1";
+        const userId = getCookie("userId")?.toString() ?? "-1";
         setLoggedIn(!(parseInt(userId) < 0));
         params.setShowLogin(false);
     }
@@ -38,12 +38,7 @@ export default function LoginModal(params: {setShowLogin: (show: boolean)=>void}
         handleLogin(false);
     }, [])
 
-    // async function checkCookie(cookieName: string){
-    //     const cookie = await getCookie(cookieName);
-    //     console.log(cookie);
-    // }
     return <div className="sm:rounded-2xl flex bg-white overflow-hidden h-full sm:h-4/5 sm:my-20 sm:mx-40 flex-col items-center justify-between">
-        {/* <div onClick={()=> checkCookie("userId")}> check cookie</div> */}
         <div className="flex flex-row justify-end w-full py-2 px-4">
             <button onClick={()=>params.setShowLogin(false)}>X</button>
         </div>
@@ -74,10 +69,5 @@ export default function LoginModal(params: {setShowLogin: (show: boolean)=>void}
             </>
         }
         </div>
-
-    // this should have two states:
-    // no cookies (login form)
-    // has cookies (logout button)
-
-    // also, login error does not work correctly
+        
 }
