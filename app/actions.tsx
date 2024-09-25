@@ -54,16 +54,12 @@ export async function login(user:string, password: string) {
     if (!process.env.API_URL) return;
     const url = process.env.API_URL + "/login/?username=" + user + "&password=" + password;
     try{
-        console.log(url);
         const response = await fetch(url, {method:"POST"});
-        console.log(response);
         const userInfo = await response.json();
-        console.log("login response", userInfo);
         if (!userInfo.username){
             console.log("login failed");
-            return userInfo.detail;
+            throw userInfo.detail;
         }
-        console.log(userInfo);
         const setCookieHeader = response.headers.get('set-cookie');
         if (setCookieHeader) {
             // Extract the csrf token from the Set-Cookie header
@@ -72,6 +68,9 @@ export async function login(user:string, password: string) {
             if (cookie.trim().startsWith('csrftoken=')) {
                 const token = cookie.split(';')[0].split('=')[1];
                 cookies().set('csrftoken', token); // Store the CSRF token in state
+            }if (cookie.trim().startsWith('sessionid=')) {
+                const token = cookie.split(';')[0].split('=')[1];
+                cookies().set('sessionid', token); // Store the CSRF token in state
             }
             });
          }
@@ -81,6 +80,7 @@ export async function login(user:string, password: string) {
 
     }catch(e){
         console.error(e);
+        return e;
     }
 }
 
@@ -88,15 +88,10 @@ export async function logout() {
     if (!process.env.API_URL) return;
     const url = process.env.API_URL;
     try{
-        // const csrfResponse = await fetch(url + "csrf-token/");
-        // const csrf = await csrfResponse.json();
-        console.log("csrf", cookies().get('csrftoken')?.value);
         const csrf = cookies().get('csrftoken')?.value ?? '';
-        console.log(cookies());
-        const response = await fetch(url + "logout/", {method: "POST", headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'ACCEPT': '*/*'} , credentials:"include"});
-        console.log(response);
+        const session = cookies().get('sessionid')?.value ?? '';
+        const response = await fetch(url + "/logout/", {method: "POST", headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Cookie': 'csrftoken='+ csrf+'; sessionid='+session } , credentials:"include"});
         const logoutResponse = await response.json();
-        console.log(logoutResponse);
         if (logoutResponse.message != "Logged out successfully"){
            throw logoutResponse;
         }

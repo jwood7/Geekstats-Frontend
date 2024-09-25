@@ -8,8 +8,9 @@ import Scoreboard from "./components/scoreboard";
 // import TeamRecap from "./components/teamRecap";
 import Highlights from "./components/highlights";
 import { getSummaries, getDateInfo } from "./actions";
-import LoginButton from "./components/login";
+import LoginModal from "./components/login";
 import { Electrolize } from 'next/font/google';
+import { getCookie } from "cookies-next";
 
 
 const electrolize = Electrolize({weight: '400', subsets: ['latin']});
@@ -20,6 +21,7 @@ export default function Home() {
   const [nightData, setNightData] = useState([]);
   const [seasonData, setSeasonData] = useState([]);
   const [summaryData, setSummaryData] = useState([]);
+  const [openLoginModal, setOpenLoginModal] = useState(false);
   const [dateInfo, setDateInfo] = useState({
     start_event_date: (new Date()).toISOString().split('T')[0], // default to today's date
     end_event_date: (new Date()).toISOString().split('T')[0], // default to today's date
@@ -67,7 +69,14 @@ export default function Home() {
     <div className={electrolize.className}>
       <header className="flex justify-between items-center w-full">
         {process.env.NEXT_PUBLIC_IMAGE_URL ? <img className="max-w-xs p-2.5" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/gf_header.gif"}/> : <h1>Geekfest</h1>}
-        <LoginButton/>
+        <button className="pr-5" onClick={() => setOpenLoginModal(!openLoginModal)}>
+          {
+            (getCookie("username")?.toString() ?? "").length > 0 ? 
+              <div className="h-10 w-10 sm:h-16 sm:w-16 bg-neutral-500 rounded-full overflow-hidden border-2 border-silver">{process.env.NEXT_PUBLIC_IMAGE_URL && <img src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/geeks/" + (getCookie("username")?.toString() ?? "").toLowerCase() + ".png"}/> }</div>
+            :
+              <div>Login</div>
+          }
+        </button>
       </header>
       <main className="bg-neutral-200">
         <div className="m-auto flex flex-col gap-2.5 p-2.5 lg:w-fit">
@@ -109,6 +118,8 @@ export default function Home() {
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
         
       </footer>
+      
+      {openLoginModal && <div className="backdrop-blur-sm fixed h-full w-full text-center top-0 left-0 right-0 bg-neutral-500 bg-opacity-40"> <LoginModal setShowLogin={setOpenLoginModal}/></div>}
     </div>
   );
 }
