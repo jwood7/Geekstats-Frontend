@@ -29,12 +29,15 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
         const id =  getCookie("userId")?.toString() ?? "-1";
         const name = getCookie("username")?.toString() ?? '';
         setPlayerInfo({id: parseInt(id), name: name});
-        getStats();
     }
 
     useEffect(()=> {
         handleLoginChange();
     }, [getCookie("userId")?.toString()]);
+
+    useEffect(()=> {
+        getStats();
+    }, [playerInfo]);
 
     function getTier(tierName: string){
         if (tierName === "Bronze"){
