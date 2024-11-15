@@ -24,6 +24,7 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
     })
 
     const [topWeapon, setTopWeapon] = useState({weapon_name: "", total_kills: 0});
+    const [secondaryWeapon, setSecondaryWeapon] = useState({weapon_name: "", total_kills: 0});
 
     async function handleLoginChange(){
         const id =  getCookie("userId")?.toString() ?? "-1";
@@ -77,6 +78,7 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
             Tier: getTier(playerStats.tier_name),
         });
         setTopWeapon(playerStats.top_weapon);
+        setSecondaryWeapon(playerStats.secondary_weapon);
 
     }
 
@@ -111,6 +113,13 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
                     <div className="font-bold">Top Weapon</div>
                     <span title={topWeapon.total_kills + " kills with " + topWeapon.weapon_name}>
                         <div className="h-9 w-24">{(process.env.NEXT_PUBLIC_IMAGE_URL && topWeapon.weapon_name) && <img className="m-auto" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/Weapons/" + topWeapon.weapon_name + ".png"}/> }</div>
+                    </span>
+                </div>
+
+                <div  className="collapse w-0 sm:w-fit sm:visible py-2.5">
+                    <div className="font-bold">2nd Weapon</div>
+                    <span title={secondaryWeapon.total_kills + " kills with " + secondaryWeapon.weapon_name}>
+                        <div className="h-9 w-24">{(process.env.NEXT_PUBLIC_IMAGE_URL && secondaryWeapon.weapon_name) && <img className="m-auto" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/Weapons/" + secondaryWeapon.weapon_name + ".png"}/> }</div>
                     </span>
                 </div>
             
