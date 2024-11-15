@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAwardsForGeek } from "../actions";
+import { getAwardsForGeek } from "../../actions";
 import { getCookie } from "cookies-next";
 import Award, { AwardType }from "./award";
 

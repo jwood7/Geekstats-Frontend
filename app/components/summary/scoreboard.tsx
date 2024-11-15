@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import TierWinner from "./tierWinner";
-import { getTiers } from "../actions";
+import { getTiers } from "../../actions";
 
 
 export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
@@ -133,7 +133,7 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
                 </tr>
               </thead>
               <tbody>
-            {filter == "default" && params.tableData?.map((row: any, index:number) => (
+            {filter == "default" && params.tableData && params.tableData?.map((row: any, index:number) => (
               createRow(row, index)
             ))}
             {filter == "tier" && tierView.map((row: any, index:number) => (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAwards} from "../actions";
+import { getAwards} from "../../actions";
 import Award, { AwardType }from "./award";
 
 export default function Highlights(params: {isNight: boolean, seasonStart: string, seasonEnd: string}) {
