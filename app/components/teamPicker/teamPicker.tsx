@@ -1,8 +1,8 @@
 import WeeklyMap from "./weeklyMap";
 import TeamPlayerCard from "./teamPlayerCard";
 
-let activeTeam = 1;
-let currUserTeam = 1;
+const activeTeam = 1;
+const currUserTeam = 1;
 
 const getTeamBorder = (teamId: number, userTeam: number) => {
     if (teamId === activeTeam){
@@ -34,7 +34,7 @@ export default function TeamPicker() {
     return (
         <div className="w-full h-full pt-2">
             <div className="bg-white drop-shadow px-5 pb-5 pt-2.5 rounded-lg m-2">
-                <p>This week's maps</p>
+                <p>This week&apos;s maps</p>
                 <div className="flex justify-evenly gap-2.5">
                     <WeeklyMap/>
                     <WeeklyMap/>

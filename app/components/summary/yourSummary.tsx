@@ -92,7 +92,7 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
 
     return <div className="dashboard-component rounded-xl overflow-hidden gap-2.5 drop-shadow-lg bg-white">
         <div className="your-summary-top bg-neutral-900 text-white flex flex-row px-4 gap-2.5 pt-2 justify-center sm:justify-start">
-            <div className="h-0 w-0 sm:h-24 sm:w-24 bg-neutral-500 rounded-lg">{process.env.NEXT_PUBLIC_IMAGE_URL && <img src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/geeks/" + playerInfo.name?.toLowerCase() + ".png"}/> }</div>
+            <div className="h-0 w-0 sm:h-24 sm:w-24 bg-neutral-500 rounded-lg">{process.env.NEXT_PUBLIC_IMAGE_URL && <img src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/geeks/" + playerInfo.name?.toLowerCase() + ".png"} alt={playerInfo.name}/> }</div>
             <div >
                 <h1 className="font-bold text-2xl sm:px-3 text-center sm:text-left">{(playerInfo.name?.length ?? -1 )> 0 ? playerInfo.name + "'s ": "Your"} Summary</h1>
                 <div className="flex flex-row gap-2.5 text-xs sm:text-lg flex-wrap ">
@@ -112,14 +112,14 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
                 <div  className="py-2.5">
                     <div className="font-bold">Top Weapon</div>
                     <span title={topWeapon.total_kills + " kills with " + topWeapon.weapon_name}>
-                        <div className="h-9 w-24">{(process.env.NEXT_PUBLIC_IMAGE_URL && topWeapon.weapon_name) && <img className="m-auto" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/Weapons/" + topWeapon.weapon_name + ".png"}/> }</div>
+                        <div className="h-9 w-24">{(process.env.NEXT_PUBLIC_IMAGE_URL && topWeapon.weapon_name) && <img className="m-auto" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/Weapons/" + topWeapon.weapon_name + ".png"} alt={topWeapon.weapon_name}/> }</div>
                     </span>
                 </div>
 
                 <div  className="collapse w-0 sm:w-fit sm:visible py-2.5">
                     <div className="font-bold">2nd Weapon</div>
                     <span title={secondaryWeapon.total_kills + " kills with " + secondaryWeapon.weapon_name}>
-                        <div className="h-9 w-24">{(process.env.NEXT_PUBLIC_IMAGE_URL && secondaryWeapon.weapon_name) && <img className="m-auto" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/Weapons/" + secondaryWeapon.weapon_name + ".png"}/> }</div>
+                        <div className="h-9 w-24">{(process.env.NEXT_PUBLIC_IMAGE_URL && secondaryWeapon.weapon_name) && <img className="m-auto" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/Weapons/" + secondaryWeapon.weapon_name + ".png"} alt={secondaryWeapon.weapon_name}/> }</div>
                     </span>
                 </div>
             

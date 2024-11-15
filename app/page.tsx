@@ -5,7 +5,7 @@ import SummaryPage from "./components/summary/summaryPage";
 import LoginModal from "./components/login";
 import { Electrolize } from 'next/font/google';
 import { getCookie } from "cookies-next";
-import TeamPicker from "./components/teamPicker/teamPicker";
+// import TeamPicker from "./components/teamPicker/teamPicker";
 
 // Should really move this stuff in to layout page
 
@@ -18,13 +18,13 @@ export default function Home() {
   return (
     <div className={electrolize.className}>
       <header className="flex justify-between items-center w-full">
-        {process.env.NEXT_PUBLIC_IMAGE_URL ? <img className="max-w-xs p-2.5" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/gf_header.gif"}/> : <h1>Geekfest</h1>}
+        {process.env.NEXT_PUBLIC_IMAGE_URL ? <img className="max-w-xs p-2.5" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/gf_header.gif"} alt="Geekfest"/> : <h1>Geekfest</h1>}
         <button className="pr-5" onClick={() => setOpenLoginModal(!openLoginModal)}>
           {
             !getCookie("username") || (getCookie("username")?.toString() ?? "").length <= 0 ? 
               <div>Login</div>
               :
-              <div className="h-10 w-10 sm:h-16 sm:w-16 bg-neutral-500 rounded-full overflow-hidden border-2 border-silver">{process.env.NEXT_PUBLIC_IMAGE_URL && <img src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/geeks/" + (getCookie("username")?.toString() ?? "").toLowerCase() + ".png"}/> }</div>
+              <div className="h-10 w-10 sm:h-16 sm:w-16 bg-neutral-500 rounded-full overflow-hidden border-2 border-silver">{process.env.NEXT_PUBLIC_IMAGE_URL && <img src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/geeks/" + (getCookie("username")?.toString() ?? "").toLowerCase() + ".png"} alt={getCookie("username")?.toString() ?? ""}/> }</div>
               
           }
         </button>

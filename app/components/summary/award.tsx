@@ -58,7 +58,7 @@ export default function Award(params: {awardData: AwardType}) {
             {
                 showRankings && params.awardData.geeks && params.awardData.geeks.map((geek) => {
                     return (
-                        <div className="flex justify-between px-2">
+                        <div className="flex justify-between px-2" key={geek.geek_id}>
                             <div>{geek.geek_handle}</div>
                             <div>{geek.aggregation_value}</div>
                         </div>

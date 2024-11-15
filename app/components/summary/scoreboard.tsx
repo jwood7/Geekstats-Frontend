@@ -65,7 +65,7 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
             <td className={" sm:px-2 " + (row.kdr - row.year_kdr < 0 ? "text-red-500" : "text-green-600")}>{row.kdr - row.year_kdr > 0 && "+"}{(row.kdr - row.year_kdr).toFixed(2)}</td>
             <td className="sm:px-2">
             <span title={ row.top_weapon.total_kills + " kills with " +  row.top_weapon.weapon_name}>
-              {(process.env.NEXT_PUBLIC_IMAGE_URL && row.top_weapon.weapon_name) && <img className="m-auto max-h-6" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/Weapons/" + row.top_weapon.weapon_name + ".png"}/> }
+              {(process.env.NEXT_PUBLIC_IMAGE_URL && row.top_weapon.weapon_name) && <img className="m-auto max-h-6" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/Weapons/" + row.top_weapon.weapon_name + ".png"} alt={row.top_weapon.weapon_name}/> }
             </span>
             </td>
             <td className=" sm:px-2">{row.alltime_kdr}</td>
