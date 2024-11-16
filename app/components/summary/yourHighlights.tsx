@@ -17,9 +17,8 @@ export default function YourHighlights(params: {isNight: boolean, seasonStart: s
         if (geek_id){
             const queryParams = params.isNight ? {geek_id: parseInt(geek_id)} :  { geek_id: parseInt(geek_id), start_date: params.seasonStart, end_date: params.seasonEnd}
             const allAwardsQueryParams = params.isNight ? {end: "52"} :  {start_date: params.seasonStart, end_date: params.seasonEnd, end: "52"}
-            let awards = await getAwardsForGeek(queryParams); // add dates here when season too
+            const awards = await getAwardsForGeek(queryParams); // add dates here when season too
             const allAwards = await getAwards(allAwardsQueryParams);
-            awards = awards.slice(0,5);
             const awardsData = awards.map((award: any) => {
                 // find award in allAwards
                 const matchingAward = allAwards.find((allAward: any) => allAward.award_title === award.award_title);
@@ -35,7 +34,7 @@ export default function YourHighlights(params: {isNight: boolean, seasonStart: s
                     geeks: geeks,
                 }
             });
-            setAwardData(awardsData);
+            setAwardData(awardsData.slice(0,5));
             setAllAwardData(awardsData);
         }
     }
