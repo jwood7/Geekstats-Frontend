@@ -59,6 +59,9 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
         // should do this on the page page.
         if (playerInfo.id < 0) return;
         const playerStats = params.stats.find((geek: { geek_id: number; }) => geek.geek_id === playerInfo.id);
+        if (!playerStats){
+            return
+        }
         const kdrChange = parseFloat(playerStats.kdr) - parseFloat(playerStats.year_kdr);
         const vs1yr=  kdrChange < 0 ? <p className="text-red-600">{"" + kdrChange.toFixed(2)}</p> : <p className="text-green-600">{"+" + kdrChange.toFixed(2)}</p>;
         setYourStats({

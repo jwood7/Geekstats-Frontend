@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAwardsForGeek } from "../../actions";
+import { getAwardsForGeek, getAwards} from "../../actions";
 import { getCookie } from "cookies-next";
 import Award, { AwardType }from "./award";
 
@@ -16,9 +16,14 @@ export default function YourHighlights(params: {isNight: boolean, seasonStart: s
         setPlayerId(geek_id);
         if (geek_id){
             const queryParams = params.isNight ? {geek_id: parseInt(geek_id)} :  { geek_id: parseInt(geek_id), start_date: params.seasonStart, end_date: params.seasonEnd}
+            const allAwardsQueryParams = params.isNight ? {end: "52"} :  {start_date: params.seasonStart, end_date: params.seasonEnd, end: "52"}
             let awards = await getAwardsForGeek(queryParams); // add dates here when season too
+            const allAwards = await getAwards(allAwardsQueryParams);
             awards = awards.slice(0,5);
             const awardsData = awards.map((award: any) => {
+                // find award in allAwards
+                const matchingAward = allAwards.find((allAward: any) => allAward.award_title === award.award_title);
+                const geeks = matchingAward ? matchingAward.geeks.slice(0, 5) : [];
                 return {
                     // award.award_description goes unused for now
                     awardName: award.award_title, 
@@ -27,7 +32,7 @@ export default function YourHighlights(params: {isNight: boolean, seasonStart: s
                     description: award.award_name, 
                     value: parseInt(award.aggregation_value), 
                     imagePath: award.award_image_path,
-                    geeks: award.geeks.slice(0,5),
+                    geeks: geeks,
                 }
             });
             setAwardData(awardsData);
