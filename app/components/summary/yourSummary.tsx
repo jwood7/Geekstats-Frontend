@@ -99,7 +99,7 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
             <div >
                 <h1 className="font-bold text-2xl sm:px-3 text-center sm:text-left">{(playerInfo.name?.length ?? -1 )> 0 ? playerInfo.name + "'s ": "Your"} Summary</h1>
                 <div className="flex flex-row gap-2.5 text-xs sm:text-lg flex-wrap ">
-                    {Object.entries(yourStats).map(([stat, value]) => {
+                    {yourStats && Object.entries(yourStats).map(([stat, value]) => {
                         return (
                         <div key={stat} className="py-2.5 sm:p-2.5 text-center">
                             <div className="font-bold"> {stat.replaceAll("_", " ")} </div>
@@ -126,7 +126,7 @@ export default function YourSummary(params: {isNight: boolean, stats: any}) {
                     </span>
                 </div>
             
-                {Object.entries(ranks).map(([rank, value]) => {
+                {ranks && Object.entries(ranks).map(([rank, value]) => {
                     return (
                     <div key={rank} className="py-2.5 sm:p-2.5 text-center">
                         <div className="font-bold">{rank.replaceAll("_", " ")}</div>

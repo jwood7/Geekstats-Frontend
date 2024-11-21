@@ -8,7 +8,7 @@ export default function Highlights(params: {isNight: boolean, seasonStart: strin
     async function handleGetAward(){
         const queryParams = params.isNight ? {} :  {start_date: params.seasonStart, end_date: params.seasonEnd}
         const awards = await getAwards(queryParams);
-        const awardsData = awards.map((award: any) => {
+        const awardsData = awards && awards.map((award: any) => {
             return {
                 // award.award_description goes unused for now
                 awardName: award.award_title, 
@@ -31,7 +31,7 @@ export default function Highlights(params: {isNight: boolean, seasonStart: strin
         <h1 className="m-auto text-2xl text-center font-bold">Top Awards</h1>
         {/* <button onClick={()=>handleGetAward()}>Click to test</button> */}
         <div className="flex flex-col gap-2.5 py-2.5 transition duration-150 ease-in-out">
-            {awardData.map((award)  => {return <Award key={award.awardName} awardData={award}/>}) }
+            {awardData && awardData.map((award)  => {return <Award key={award.awardName} awardData={award}/>}) }
         </div>
     </div>
 }

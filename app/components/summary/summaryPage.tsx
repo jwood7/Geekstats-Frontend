@@ -43,7 +43,7 @@ export default function SummaryPage() {
   async function handleDateAndSeasonSummaries(){
     const date = await getDateInfo();
     setDateInfo(date);
-    if (date.season_info.season_name != "Offseason"){
+    if (date.season_info && date.season_info.season_name != "Offseason"){
       const seasonSummaries = await getSummaries(date.season_info.season_start_event, date.season_info.season_end_event);
       setSeasonData(seasonSummaries);
       if (!isNightData) setSummaryData(seasonSummaries);
@@ -66,8 +66,8 @@ export default function SummaryPage() {
   return (
     <div className="m-auto flex flex-col gap-2.5 p-2.5 lg:w-fit">
         <div className="bg-red-800 rounded-xl flex md:flex-row flex-col justify-between font-bold drop-shadow-lg px-12 py-3 items-center">
-            <h1 className="text-white text-2xl">{dateInfo && (parseDate(dateInfo.end_event_date) + dateInfo.season_info.season_name)}</h1>
-            {dateInfo.season_info?.season_name != "Offseason" && <DataToggle isNight={isNightData} setIsNight={setIsNightData} setSummary={setSummaryData} night={nightData} season={seasonData}/> }
+            <h1 className="text-white text-2xl">{dateInfo && dateInfo.season_info && (parseDate(dateInfo.end_event_date) + dateInfo.season_info?.season_name)}</h1>
+            {dateInfo.season_info && dateInfo.season_info?.season_name != "Offseason" && <DataToggle isNight={isNightData} setIsNight={setIsNightData} setSummary={setSummaryData} night={nightData} season={seasonData}/> }
         </div>
         <div className="flex gap-2.5 flex-wrap justify-center">
             {/* <div>

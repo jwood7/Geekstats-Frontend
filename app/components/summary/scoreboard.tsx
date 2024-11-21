@@ -92,7 +92,7 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
         <div className=" mx-auto p-3 rounded-2xl bg-white drop-shadow-xl w-full text-xs sm:text-base">
           <div className="text:xs sm:text-2xl font-bold text-center pb-1">Leaderboard {params.isNight ? "for the Night" : "for the Season"}</div>
             <div className="flex justify-evenly w-full pb-2 flex-wrap flex-col sm:flex-row content-center">
-                {Object.values(tiers).map((tier)=>{
+                {tiers && Object.values(tiers).map((tier)=>{
                     if (tier.length > 0){
                         const player = params.tableData[tier[0]];
                         return <TierWinner key={player.geek_id} player={player} getTierColor={getTierColor}/>
@@ -136,7 +136,7 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
             {filter == "default" && params.tableData && params.tableData?.map((row: any, index:number) => (
               createRow(row, index)
             ))}
-            {filter == "tier" && tierView.map((row: any, index:number) => (
+            {filter == "tier" && tierView && tierView.map((row: any, index:number) => (
               createRow(params.tableData[row], index)
             ))}
           </tbody>
@@ -145,7 +145,7 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
       <div className="flex uppercase justify-center py-5 font-bold flex-col sm:flex-row items-center"> 
         <p className="pr-1">TIER RESTRICTIONS: </p> 
         {tierRestrictions && tierRestrictions.map((tier)=>{
-          const description = tier.tier_weapon_restrict.length < 1 ? "No restrictions" : "Cannot use " + tier.tier_weapon_restrict.map((weapon, index) => {return (index !=0 ? " " : "") + weapon}) + (tier.tier_armor_restrict ? " or armor" : "");
+          const description = tier.tier_weapon_restrict.length < 1 ? "No restrictions" : tier.tier_weapon_restrict && "Cannot use " + tier.tier_weapon_restrict.map((weapon, index) => {return (index !=0 ? " " : "") + weapon}) + (tier.tier_armor_restrict ? " or armor" : "");
           return <span title={description} key={tier.tier_id}><div className={"px-2 w-20 text-center " + getTierColor(tier.tier_name)}> {tier.tier_name == "West1: Master" ? "Master": tier.tier_name} </div></span>
         })}
       </div>

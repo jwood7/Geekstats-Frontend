@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect} from "react";
-import SummaryPage from "./components/summary/summaryPage";
-import LoginModal from "./components/login";
+// import SummaryPage from "../components/summary/summaryPage";
+import LoginModal from "../components/login";
 import { Electrolize } from 'next/font/google';
 import { getCookie } from "cookies-next";
 import Link from "next/link";
-// import TeamPicker from "./components/teamPicker/teamPicker";
+import TeamPicker from "../components/teamPicker/teamPicker";
 
 // Should really move this stuff in to layout page
 
@@ -26,7 +26,7 @@ useEffect(()=>{
         <div className="flex justify-between gap-10 align-center">
           {process.env.NEXT_PUBLIC_IMAGE_URL ? <img className="max-w-xs p-2.5" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/gf_header.gif"} alt="Geekfest"/> : <h1>Geekfest</h1>}
           <Link className="my-auto text-neutral-500" href="/">Summary</Link>
-          {/* <Link className="my-auto text-neutral-500" href="/Teams">Teams</Link> */}
+          <Link className="my-auto text-neutral-500" href="/Teams">Teams</Link>
         </div>
         <button className="pr-5" onClick={() => setOpenLoginModal(!openLoginModal)}>
           {
@@ -39,8 +39,8 @@ useEffect(()=>{
         </button>
       </header>
       <main className="bg-neutral-200">
-        <SummaryPage/>
-        {/* <TeamPicker/> */}
+        {/* <SummaryPage/> */}
+        <TeamPicker/>
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
         
