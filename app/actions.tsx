@@ -25,10 +25,11 @@ export async function getSummaries(startDate?: string, endDate?:string){
     try{
         const response = await fetch(url);
         const summaries = await response.json();
-        // console.log(summaries);
+        if (summaries.error) throw summaries.error;
         return summaries;
     }catch(e){
         console.error(e);
+        return [];
     }
 }
 
@@ -44,9 +45,22 @@ export async function getDateInfo(startDate?: string, endDate?:string){
     try{
         const response = await fetch(url);
         const dateInfo = await response.json();
+        if (dateInfo.error) throw dateInfo.error;
         return dateInfo;
     }catch(e){
         console.error(e);
+        return {
+            "start_event_date": "",
+            "end_event_date": "",
+            "start_round": 0,
+            "end_round": 0,
+            "match_ids": [],
+            "season_info": {
+                "season_name": "No season data",
+                "season_start_event": "",
+                "season_end_event": ""
+            }
+        }
     }
 }
 
@@ -140,6 +154,20 @@ export async function getTiers (tier_id?:string){
         const response = await fetch(url);
         const tiers = await response.json();
         return tiers;
+    }catch(e){
+        console.error(e);
+    }
+
+}
+
+export async function getTeams (event_date?:string){
+    let url = process.env.API_URL + "/team-geek";
+    if (event_date) url += "?event_date=" + event_date;
+    try {
+        const response = await fetch(url);
+        const teams = await response.json();
+        console.log(teams);
+        return teams;
     }catch(e){
         console.error(e);
     }

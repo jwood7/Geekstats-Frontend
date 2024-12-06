@@ -15,7 +15,6 @@ const electrolize = Electrolize({weight: '400', subsets: ['latin']});
 export default function Home() {
   const [openLoginModal, setOpenLoginModal] = useState(false);
   const [username, setUsername] = useState("");
-
 useEffect(()=>{
   setUsername(getCookie("username")?.toString() ?? "");
 }, [getCookie("username")]);

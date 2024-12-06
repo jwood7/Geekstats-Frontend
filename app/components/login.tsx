@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { login, logout } from "../actions";
 import { getCookie } from "cookies-next";
 
@@ -7,6 +7,9 @@ export default function LoginModal(params: { setShowLogin: (show: boolean) => vo
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+
+  // Create a reference to the username input field
+  const usernameRef = useRef<HTMLInputElement>(null);
 
   // Function to handle login
   async function handleLogin(showErrorMsg?: boolean) {
@@ -40,6 +43,11 @@ export default function LoginModal(params: { setShowLogin: (show: boolean) => vo
   // Effect to check login status on mount
   useEffect(() => {
     handleLogin(false);
+
+    // Set focus to the username input when the component loads
+    if (usernameRef.current) {
+      usernameRef.current.focus();
+    }
   }, []);
 
   // Submit handler for form submission
@@ -59,6 +67,7 @@ export default function LoginModal(params: { setShowLogin: (show: boolean) => vo
           <form className="flex flex-col w-1/2 gap-2" onSubmit={handleSubmit}>
             <label htmlFor="username">Username</label>
             <input
+              ref={usernameRef} // Attach the ref to the username input
               className="bg-[#EAEAEA] px-1"
               name="username"
               type="text"
