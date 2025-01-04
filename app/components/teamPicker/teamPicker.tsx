@@ -77,11 +77,10 @@ export default function TeamPicker() {
     const [canUserPick, setCanUserPick] = useState(false);
     const [activeTeam, setActiveTeam] = useState(-2);
     const [pickError, setPickError] = useState("");
-    const [isAdmin, setIsAdmin] = useState(false);
     const [maps, setMaps] = useState<Map[]>([]);
 
     const calculateTeamKDR = (teamId: number, staticTeams?: Team[]) =>{
-        let teamsCopy = staticTeams ?? teams;
+        const teamsCopy = staticTeams ?? teams;
         if (!teamsCopy || teamsCopy.length <= 0 || !teamsCopy[teamId].geeks || teamsCopy[teamId].geeks.length <= 0){
             return teamsCopy[teamId];
         }
@@ -131,7 +130,7 @@ export default function TeamPicker() {
         const discordData: Geek[] = await getDiscordAttendees();
         // loop through teams, if player in discordData, remove them from DiscordData, else mark them as not attending
         // Get remaining players stats, sort by kdr, and add them to unpicked
-        let userId = getCookie("userId") ?? -1;
+        const userId = getCookie("userId") ?? -1;
         formattedTeams.slice(1).forEach(team => {
             team.geeks.forEach(geek => {
                 if (userId == geek.geek_id){
@@ -168,7 +167,11 @@ export default function TeamPicker() {
     }
 
     async function selectGeek(geek: Geek, teamId: number){
-        (selected === null || geek !== selected[0]) && activeTeam === currUserTeam && (teamId === currUserTeam || teamId === -1) ? setSelected([geek, teamId]) : setSelected(null);
+         if ((selected === null || geek !== selected[0]) && activeTeam === currUserTeam && (teamId === currUserTeam || teamId === -1)){
+            setSelected([geek, teamId])
+         }else{
+            setSelected(null);
+         }
         setPickError("");
     }
 
@@ -178,14 +181,14 @@ export default function TeamPicker() {
         if (!selected || activeTeam != currUserTeam) {
             return;
         }
-        if (!isAdmin && (selected[1] != -1 && (selected[1] != currUserTeam || selected[0].geek_id === teams[1].captain_id || selected[0].geek_id === teams[2].captain_id || selected[0].geek_id === teams[1].co_captain_id || selected[0].geek_id === teams[2].co_captain_id || !selected[0].attending))){
+        if ((selected[1] != -1 && (selected[1] != currUserTeam || selected[0].geek_id === teams[1].captain_id || selected[0].geek_id === teams[2].captain_id || selected[0].geek_id === teams[1].co_captain_id || selected[0].geek_id === teams[2].co_captain_id || !selected[0].attending))){
             setPickError("Cannot move selected player");
             setSelected(null);
             return;
         }
         setPickError("");
-        let action = selected[1] === activeTeam ? "remove" : "add";
-        const success = await sendPick(selected[0].geek_id, teams[activeTeamIndex].team_id, action);
+        const action = selected[1] === activeTeam ? "remove" : "add";
+        await sendPick(selected[0].geek_id, teams[activeTeamIndex].team_id, action);
         setSelected(null);
         const endTurn = await endPickTurn();
         if (!endTurn){
@@ -220,7 +223,7 @@ export default function TeamPicker() {
 
     async function pollPickFlag(longPoll:boolean = true){
         
-        let userId = getCookie("userId") ?? -1;
+        const userId = getCookie("userId") ?? -1;
 
         if (activeTeam !== currUserTeam && userId !== -1){
             let pickFlag;

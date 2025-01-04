@@ -198,7 +198,7 @@ export async function getMatches (event_date?:string){
 }
 
 export async function getDiscordAttendees(){
-    let url = process.env.API_URL + "/teams/discord-geek";
+    const url = process.env.API_URL + "/teams/discord-geek";
     try {
         const response = await fetch(url);
         const geeks = await response.json();
@@ -213,7 +213,7 @@ export async function getDiscordAttendees(){
 }
 
 export async function sendPick(picked_geek_id: number, team_id: number, action: string){
-    let url = process.env.API_URL + `/teams/pick/?picked_geek_id=${picked_geek_id}&team_id=${team_id}&action=${action}`;
+    const url = process.env.API_URL + `/teams/pick/?picked_geek_id=${picked_geek_id}&team_id=${team_id}&action=${action}`;
     try {
         console.log(picked_geek_id, team_id, action);
         const csrf = cookies().get('csrftoken')?.value ?? '';
@@ -232,7 +232,7 @@ export async function sendPick(picked_geek_id: number, team_id: number, action: 
 }
 
 export async function getPickFlag(){
-    let url = process.env.API_URL + `/teams/get-pick-flag/`;
+    const url = process.env.API_URL + `/teams/get-pick-flag/`;
     try {
         const csrf = cookies().get('csrftoken')?.value ?? '';
         const session = cookies().get('sessionid')?.value ?? '';
@@ -247,7 +247,7 @@ export async function getPickFlag(){
 }
 
 export async function checkPickFlag(){
-    let url = process.env.API_URL + `/teams/check-pick-flag/`;
+    const url = process.env.API_URL + `/teams/check-pick-flag/`;
     try {
         const csrf = cookies().get('csrftoken')?.value ?? '';
         const session = cookies().get('sessionid')?.value ?? '';
@@ -262,7 +262,7 @@ export async function checkPickFlag(){
 }
 
 export async function endPickTurn(){
-    let url = process.env.API_URL + `/teams/next-pick/`;
+    const url = process.env.API_URL + `/teams/next-pick/`;
     try {
         const csrf = cookies().get('csrftoken')?.value ?? '';
         const session = cookies().get('sessionid')?.value ?? '';
