@@ -34,6 +34,7 @@ export default function LoginModal(params: { setShowLogin: (show: boolean) => vo
 
   // Function to handle logout
   async function handleLogout() {
+    setLoginError("Logging out...");
     await logout();
     const userId = getCookie("userId")?.toString() ?? "-1";
     setLoggedIn(!(parseInt(userId) < 0));
@@ -52,6 +53,7 @@ export default function LoginModal(params: { setShowLogin: (show: boolean) => vo
 
   // Submit handler for form submission
   const handleSubmit = (event: React.FormEvent) => {
+    setLoginError("Logging in...");
     event.preventDefault(); // Prevent the default form submission
     handleLogin(true); // Trigger the login attempt
   };

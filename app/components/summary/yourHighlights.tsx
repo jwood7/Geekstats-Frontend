@@ -19,7 +19,7 @@ export default function YourHighlights(params: {isNight: boolean, seasonStart: s
             const allAwardsQueryParams = params.isNight ? {end: "52"} :  {start_date: params.seasonStart, end_date: params.seasonEnd, end: "52"}
             const awards = await getAwardsForGeek(queryParams); // add dates here when season too
             const allAwards = await getAwards(allAwardsQueryParams);
-            if (awards.length > 0){
+            if (awards && awards.length > 0){
                 const awardsData = awards.map((award: any) => {
                     // find award in allAwards
                     const matchingAward = allAwards.find((allAward: any) => allAward.award_title === award.award_title);
@@ -60,6 +60,7 @@ export default function YourHighlights(params: {isNight: boolean, seasonStart: s
         {/* <button onClick={()=>handleGetAward()}>Click to test</button> */}
         <div className="flex flex-col gap-2.5 py-2.5">
             {awardData && awardData.map((award)  => {return <Award key={award.awardName} awardData={award}/>}) }
+            {/* <Image className={ `transition-transform duration-300 ease-in-out ${rotated ? 'rotate-180' : ''}`} src="/icons/arrow-down.svg" alt="" width={16} height={16} /> */}
             <button className="bg-silver rounded-full drop-shadow"onClick={()=>handleShowMore()}>{showMore ? "▲ Show Less" : "▼ Show More"}</button>
         </div>
     </div>

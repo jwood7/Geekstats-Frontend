@@ -13,7 +13,7 @@ function addQueryParams(url: string, queryParams: any){
 
 export async function getSummaries(startDate?: string, endDate?:string){
     if (!process.env.API_URL) return;
-    let url = process.env.API_URL + "/frags/summary-by-geek";
+    let url = process.env.API_URL + "/geeks/summary-by-geek";
 
     if (startDate){
         url = url + "?start_date=" + startDate;
@@ -24,6 +24,7 @@ export async function getSummaries(startDate?: string, endDate?:string){
     console.log(url);
     try{
         const response = await fetch(url);
+        console.log(response);
         const summaries = await response.json();
         if (summaries.error) throw summaries.error;
         return summaries;
@@ -35,7 +36,7 @@ export async function getSummaries(startDate?: string, endDate?:string){
 
 export async function getDateInfo(startDate?: string, endDate?:string){
     if (!process.env.API_URL) return;
-    let url = process.env.API_URL + "/date-round";
+    let url = process.env.API_URL + "/admin/date-round";
     if (startDate){
         url = url + "?" + startDate;
     }
@@ -66,7 +67,7 @@ export async function getDateInfo(startDate?: string, endDate?:string){
 
 export async function login(user:string, password: string) {
     if (!process.env.API_URL) return;
-    const url = process.env.API_URL + "/login/?username=" + user + "&password=" + password;
+    const url = process.env.API_URL + "/admin/login/?username=" + user + "&password=" + password;
     try{
         const response = await fetch(url, {method:"POST"});
         const userInfo = await response.json();
@@ -90,6 +91,9 @@ export async function login(user:string, password: string) {
          }
         cookies().set('userId', userInfo.geek_id);
         cookies().set('username', userInfo.username);
+        // Not a super secure way to handle this
+        cookies().set('isAdmin', userInfo.is_superuser);
+        cookies().set('isStaff', userInfo.is_staff);
         return userInfo;
 
     }catch(e){
@@ -104,13 +108,15 @@ export async function logout() {
     try{
         const csrf = cookies().get('csrftoken')?.value ?? '';
         const session = cookies().get('sessionid')?.value ?? '';
-        const response = await fetch(url + "/logout/", {method: "POST", headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Cookie': 'csrftoken='+ csrf+'; sessionid='+session } , credentials:"include"});
+        const response = await fetch(url + "/admin/logout/", {method: "POST", headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Cookie': 'csrftoken='+ csrf+'; sessionid='+session } , credentials:"include"});
         const logoutResponse = await response.json();
         if (logoutResponse.message != "Logged out successfully"){
            throw logoutResponse;
         }
         cookies().delete('userId');
         cookies().delete('username');
+        cookies().delete('isAdmin');
+        cookies().delete('isStaff');
         return "Logged out";
 
     }catch(e){
@@ -148,7 +154,7 @@ export async function getAwards(queryParams : {start_date?: string, end_date?: s
 }
 
 export async function getTiers (tier_id?:string){
-    let url = process.env.API_URL + "/tier";
+    let url = process.env.API_URL + "/geeks/tier";
     if (tier_id) url += "?tier_id=" + tier_id;
     try {
         const response = await fetch(url);
@@ -161,13 +167,109 @@ export async function getTiers (tier_id?:string){
 }
 
 export async function getTeams (event_date?:string){
-    let url = process.env.API_URL + "/team-geek";
+    let url = process.env.API_URL + "/teams/team-geek";
     if (event_date) url += "?event_date=" + event_date;
     try {
         const response = await fetch(url);
         const teams = await response.json();
-        console.log(teams);
+        // console.log(teams);
         return teams;
+    }catch(e){
+        console.error(e);
+        return [];
+    }
+
+}
+
+export async function getMatches (event_date?:string){
+    let url = process.env.API_URL + "/matches/matches";
+    if (event_date) url += "?event_date=" + event_date;
+    try {
+        const response = await fetch(url);
+        const matches = await response.json();
+        // console.log(matches);
+        // console.log(matches.matches);
+        return matches.matches;
+    }catch(e){
+        console.error(e);
+        return [];
+    }
+
+}
+
+export async function getDiscordAttendees(){
+    let url = process.env.API_URL + "/teams/discord-geek";
+    try {
+        const response = await fetch(url);
+        const geeks = await response.json();
+        // console.log(geeks);
+        // console.log(geeks.discord_geeks);
+        return geeks.discord_geeks;
+    }catch(e){
+        console.error(e);
+        return [];
+    }
+
+}
+
+export async function sendPick(picked_geek_id: number, team_id: number, action: string){
+    let url = process.env.API_URL + `/teams/pick/?picked_geek_id=${picked_geek_id}&team_id=${team_id}&action=${action}`;
+    try {
+        console.log(picked_geek_id, team_id, action);
+        const csrf = cookies().get('csrftoken')?.value ?? '';
+        const session = cookies().get('sessionid')?.value ?? '';
+        const response = await fetch(url, {method: "POST", headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Cookie': 'csrftoken='+ csrf+'; sessionid='+session } , credentials:"include"});
+        const res = await response.json();
+        console.log(res);
+        console.log(res.message);
+        if (res.error) throw(res.error);
+        return true;
+    }catch(e){
+        console.error(e);
+        return false;
+    }
+
+}
+
+export async function getPickFlag(){
+    let url = process.env.API_URL + `/teams/get-pick-flag/`;
+    try {
+        const csrf = cookies().get('csrftoken')?.value ?? '';
+        const session = cookies().get('sessionid')?.value ?? '';
+        const response = await fetch(url, {method: "GET", headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Cookie': 'csrftoken='+ csrf+'; sessionid='+session } , credentials:"include"});
+        const res = await response.json();
+        if (res.error) throw(res.error);
+        return res;
+    }catch(e){
+        console.error(e);
+    }
+
+}
+
+export async function checkPickFlag(){
+    let url = process.env.API_URL + `/teams/check-pick-flag/`;
+    try {
+        const csrf = cookies().get('csrftoken')?.value ?? '';
+        const session = cookies().get('sessionid')?.value ?? '';
+        const response = await fetch(url, {method: "GET", headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Cookie': 'csrftoken='+ csrf+'; sessionid='+session } , credentials:"include"});
+        const res = await response.json();
+        if (res.error) throw(res.error);
+        return res;
+    }catch(e){
+        console.error(e);
+    }
+
+}
+
+export async function endPickTurn(){
+    let url = process.env.API_URL + `/teams/next-pick/`;
+    try {
+        const csrf = cookies().get('csrftoken')?.value ?? '';
+        const session = cookies().get('sessionid')?.value ?? '';
+        const response = await fetch(url, {method: "POST", headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Cookie': 'csrftoken='+ csrf+'; sessionid='+session } , credentials:"include"});
+        const res = await response.json();
+        if (res.error) throw(res.error);
+        return res;
     }catch(e){
         console.error(e);
     }

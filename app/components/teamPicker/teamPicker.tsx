@@ -1,18 +1,18 @@
 'use client'
 import WeeklyMap from "./weeklyMap";
 import TeamPlayerCard from "./teamPlayerCard";
-import { useState, useEffect, act } from "react";
-import { getTeams } from "../../actions";
+import { useState, useEffect } from "react";
+import { getTeams, getMatches, getDiscordAttendees, sendPick, checkPickFlag, getPickFlag, endPickTurn } from "../../actions";
 import { getKdrChange } from "./teamPlayerCard"; // should move this eventually
-
+import { getCookie } from "cookies-next";
 
 
 
 export type Geek = {
     "geek_id": number,
     "handle": string,
-    "tier": number, // might change to number
-    "tier_last_season": number, // might change to number
+    "tier": number,
+    "tier_last_season": number,
     "alltime_kdr": number,
     "year_kdr": number,
     "last90_kdr": number,
@@ -21,47 +21,83 @@ export type Geek = {
     "rounds_played": number,
     "total_kills": number,
     "total_deaths": number,
-    "perf_last_season": number
+    "perf_last_season": number,
+    discord: string,
+    attending?: boolean,
 }
 type Team = {
+    team_id: number,
     name: string, 
     geeks: Geek[],
     total_kdr?: number,
     avg_kdr?: number,
-    captain?: number,
+    captain_id?: number,
+    co_captain_id?: number,
+}
+
+export type Map = {
+    idmap: number,
+    map_name: string,
+    type: string,
+    theme: string,
+    thumbnail: string | null,
+    ct_wins: number,
+    t_wins: number,
+    plays: number,
+    metascore: number | null,
+    s_plays: number,
+    last_play: number,
+    no_obj_rounds: number,
+    bomb_plant_rounds: number,
+    bomb_explode_rounds: number,
+    defuse_rounds: number,
+    gf_certified: boolean | null,
+    lmg_kills: number,
+    ninja_kills: number,
+    sniper_kills: number,
+    total_kills: number,
+    top_geek: number,
+    top_geek_handle: string,
+    top_geek_kills: number,
+    top_weapon: number,
+    top_weapon_kills: number,
+    top_weapon_name: string
 }
 
 // todo: 
-// Set user permissions/state (captain, admin, player, team) based on login + current team
-// Admin mode should be a cookie, and should be able to be toggled on and off
-// get players from Discord, and put them in the correct teams
-// Send teams to server + discord after picks are made
+// Admin mode should be from the cookie, and should be able to be toggled on and off
+// Get better map icons (transparent backgrounds), reformat map image
+// Add marking for captain/co-captain
 
 export default function TeamPicker() {
     
-    const [teams, setTeams] = useState<Team[]>([{name: "Unpicked", geeks: []},{name: "", geeks: []},{name: "", geeks: []}]);
+    const [teams, setTeams] = useState<Team[]>([{ team_id: -1, name: "Unpicked", geeks: []},{team_id: -1, name: "", geeks: []},{team_id: -1, name: "", geeks: []}]);
     const [selected, setSelected] = useState<[Geek, number] | null>(null); 
-    const picksPerTurn = 1;
-    const [picks, setPicks] = useState(picksPerTurn);
-    const [currUserTeam, setCurrUserTeam] = useState(1); //switch to 0 default after testing
-    const [activeTeam, setActiveTeam] = useState(1);
+    const [currUserTeam, setCurrUserTeam] = useState(0);
+    const [canUserPick, setCanUserPick] = useState(false);
+    const [activeTeam, setActiveTeam] = useState(-2);
     const [pickError, setPickError] = useState("");
     const [isAdmin, setIsAdmin] = useState(false);
+    const [maps, setMaps] = useState<Map[]>([]);
 
     const calculateTeamKDR = (teamId: number, staticTeams?: Team[]) =>{
         let teamsCopy = staticTeams ?? teams;
+        if (!teamsCopy || teamsCopy.length <= 0 || !teamsCopy[teamId].geeks || teamsCopy[teamId].geeks.length <= 0){
+            return teamsCopy[teamId];
+        }
         const sum = teamsCopy[teamId].geeks.reduce(function(a, b){
             return a + b.alltime_kdr;
         }, 0);
         const avg = sum/teamsCopy[teamId].geeks.length
         teamsCopy[teamId] = {...teamsCopy[teamId], avg_kdr: parseFloat(avg.toFixed(2)), total_kdr: parseFloat(sum.toFixed(2))}
-        setTeams(teamsCopy);
+        // setTeams(teamsCopy);
+        return teamsCopy[teamId];
     }
 
-    const getTeamBorder = (teamId: number, userTeam: number) => {
-        if (teamId === activeTeam){
+    const getTeamBorder = (teamIndex: number, userTeam: number) => {
+        if (teams[teamIndex].team_id === activeTeam){
             
-            if (teamId === userTeam){
+            if (teams[teamIndex].team_id === userTeam){
                 return "border-4 border-red-800 border-solid"
             }else{
                 return "border-4 border-neutral-500 border-solid"
@@ -85,125 +121,231 @@ export default function TeamPicker() {
     }; 
 
     async function retrieveTeams(){
-        const teamData = await getTeams("2024-11-06");
-        const formattedTeams = [teams[0]].concat([{name: teamData[0].team_name, geeks: teamData[0].team}, {name: teamData[1].team_name, geeks: teamData[1].team}]);
+        const teamData = await getTeams();
+        const formattedTeams = [teams[0]].concat([
+            {team_id: teamData[0]?.team_id, name: teamData[0]?.team_name, geeks: teamData[0]?.team, captain_id: teamData[0]?.captain_id, co_captain_id: teamData[0]?.co_captain_id }, 
+            {team_id: teamData[1]?.team_id, name: teamData[1]?.team_name, geeks: teamData[1]?.team, captain_id: teamData[1]?.captain_id, co_captain_id: teamData[1]?.co_captain_id }, 
+        ]);
+        formattedTeams[1] = calculateTeamKDR(1, formattedTeams);
+        formattedTeams[2] = calculateTeamKDR(2, formattedTeams);
+        const discordData: Geek[] = await getDiscordAttendees();
+        // loop through teams, if player in discordData, remove them from DiscordData, else mark them as not attending
+        // Get remaining players stats, sort by kdr, and add them to unpicked
+        let userId = getCookie("userId") ?? -1;
+        formattedTeams.slice(1).forEach(team => {
+            team.geeks.forEach(geek => {
+                if (userId == geek.geek_id){
+                    setCurrUserTeam(team.team_id);
+                }
+                const discordGeekIndex = discordData.findIndex(dg => dg.discord === geek.discord);
+                if (discordGeekIndex !== -1) {
+                    // Geek is attending, remove them from discordData
+                    discordData.splice(discordGeekIndex, 1);
+                    geek.attending = true;
+                } else {
+                    // Geek is not attending, mark as not attending
+                    geek.attending = false;
+                }
+            });
+        });
+
+    
+        // Now, gather remaining geeks in discordData and sort by KDR
+        const unpicked = discordData.map(dg => {
+            return {
+                ...dg, 
+                attending: true
+            };
+        });
+
+    
+        // Sort unpicked geeks by KDR (you can change the KDR field depending on your needs)
+        unpicked.sort((a: Geek, b: Geek) => b.alltime_kdr - a.alltime_kdr);
+    
+        // Now unpicked contains geeks sorted by KDR
+        formattedTeams[0] = { team_id: -1, name: teamData[0]?.team_name, geeks: unpicked };
         setTeams(formattedTeams);
-        calculateTeamKDR(1, formattedTeams);
-        calculateTeamKDR(2, formattedTeams);
-        console.log(teams);
     }
 
     async function selectGeek(geek: Geek, teamId: number){
-        selected === null || geek !== selected[0] ? setSelected([geek, teamId]) : setSelected(null);
+        (selected === null || geek !== selected[0]) && activeTeam === currUserTeam && (teamId === currUserTeam || teamId === -1) ? setSelected([geek, teamId]) : setSelected(null);
         setPickError("");
     }
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
+        const activeTeamIndex = activeTeam === teams[1].team_id ? 1 : 2;
         // skip if no players selected, or not users's turn
         if (!selected || activeTeam != currUserTeam) {
             return;
         }
-        if (!isAdmin && (selected[1] != 0 && (selected[1] != currUserTeam || selected[0].geek_id === teams[1].geeks[0].geek_id || selected[0].geek_id === teams[2].geeks[0].geek_id))){
+        if (!isAdmin && (selected[1] != -1 && (selected[1] != currUserTeam || selected[0].geek_id === teams[1].captain_id || selected[0].geek_id === teams[2].captain_id || selected[0].geek_id === teams[1].co_captain_id || selected[0].geek_id === teams[2].co_captain_id || !selected[0].attending))){
             setPickError("Cannot move selected player");
-            console.log("Cannot move selected player"); 
+            setSelected(null);
             return;
         }
         setPickError("");
-        // if selected player is unassigned, pick them
-        if (selected[1] === 0){
-            let teamsCopy = teams;
-            teamsCopy[0].geeks = teamsCopy[0].geeks.filter(geek => geek.geek_id !== selected[0].geek_id);
-            teamsCopy[activeTeam].geeks.push(selected[0]);
-            setTeams(teamsCopy);
-            if (picks-1 === 0){
-                setActiveTeam(activeTeam === 1 ? 2 : 1);
-                // also send updated teams back to server
-            }
-            setPicks(picks-1);
-        }
-        // If selected player is on the user's team
-        if (selected[1] === activeTeam){
-            // Remove player from previously assigned team
-            let teamsCopy = teams;
-            teamsCopy[activeTeam].geeks = teamsCopy[activeTeam].geeks.filter(geek => geek.geek_id !== selected[0].geek_id);
-            teamsCopy[0].geeks.push(selected[0]);
-            setTeams(teamsCopy);
-            setPicks(picks+1);
-        }
+        let action = selected[1] === activeTeam ? "remove" : "add";
+        const success = await sendPick(selected[0].geek_id, teams[activeTeamIndex].team_id, action);
         setSelected(null);
-        calculateTeamKDR(activeTeam);
+        const endTurn = await endPickTurn();
+        if (!endTurn){
+            setPickError("Failed to end turn");
+        }else{
+            setActiveTeam(activeTeam === teams[1].team_id ? teams[2].team_id : teams[1].team_id);
+        }
+        setCanUserPick(false);
+        await retrieveTeams();
+    }
+
+    async function retrieveMaps(){
+        const mapData = await getMatches("2024-09-18");
+        setMaps(mapData);
+    }
+
+    // async function endTurn(){
+    //     // if (picks.length > 0){
+    //     //     for (let i = 0; i<picks.length; i++){
+    //     //         console.log("Sending pick");
+    //     //         const [sentGeek, sentTeam, sentAction] = picks[i];
+    //     //         const success = await sendPick(sentGeek, sentTeam, sentAction);
+    //     //         console.log(success);
+    //     //     }
+    //     // }
+    //     const endTurn = await endPickTurn();
+    //     if (!endTurn){
+    //         setPickError("Failed to end turn");
+    //     }
+    //     await pollPickFlag();
+    // }
+
+    async function pollPickFlag(longPoll:boolean = true){
+        
+        let userId = getCookie("userId") ?? -1;
+
+        if (activeTeam !== currUserTeam && userId !== -1){
+            let pickFlag;
+            if (longPoll){
+                pickFlag = await checkPickFlag();
+            }else{
+                pickFlag = await getPickFlag();
+            }
+            if (!pickFlag) return;
+            if (pickFlag.pick_flag){
+                // User is the captain, set their team to the current team
+                setActiveTeam(currUserTeam);
+                await retrieveTeams();
+                setSelected(null);
+                setCanUserPick(true);
+            }else if (pickFlag.message == "No updates within timeout"){
+                setCanUserPick(false);
+                pollPickFlag();
+               
+            }else{
+                setActiveTeam(pickFlag.current_team);
+                setCanUserPick(false);
+                await retrieveTeams();
+            }
+        }
+    }
+
+    async function initializePage(){
+        await retrieveTeams();
+        await retrieveMaps();
     }
 
     useEffect(()=>{
-        retrieveTeams();
+        initializePage();
     }, []);
+
+//     const teamsRef = useRef(teams); // Create a ref for teams
+
+  useEffect(() => {
+    if (teams[2].team_id === -1){
+        pollPickFlag(false);
+    }else{
+        
+        pollPickFlag();
+    }
+  }, [teams]);
+
 
     return (
         <div className="w-full h-full pt-2">
             <div className="bg-white drop-shadow px-5 pb-5 pt-2.5 rounded-lg m-2">
                 <p>This week&apos;s maps</p>
-                <div className="flex justify-evenly gap-2.5">
-                    <WeeklyMap/>
-                    <WeeklyMap/>
-                    <WeeklyMap/>
-                    <WeeklyMap/>
-                    <WeeklyMap/>
+                <div className="flex flex-col sm:flex-row justify-evenly gap-2.5">
+                    {maps.map((match: Map) => <WeeklyMap match={match} key={match.map_name}/>)}
                 </div>
             </div>
             
-            <div className="flex w-full">
-                <div className="flex flex-col w-full h-full p-1 gap-1 content-centerr">
-                    <h1 className={`font-xl font-bold text-center w-fit px-3 m-auto ${getTeamNameStyle(1, currUserTeam)}`}>{teams[1].name ?? "Team 1"}</h1>
-                    <div className={` ${getTeamBorder(1, currUserTeam)} bg-white drop-shadow rounded-md`}>
+            <div className="flex w-full justify-between p-1 items-stretch">
+                <div className="flex flex-col sm:p-1 gap-1 content-center w-[120px] sm:w-full items-center">
+                    <h1 className={`text-xs text-center sm:text-xl font-bold text-center w-full overflow-clip sm:w-fit sm:px-3 text-nowrap ${getTeamNameStyle(1, currUserTeam)}`}>{teams[1].name ?? "Team 1"}</h1>
+                    <div className={` ${getTeamBorder(1, currUserTeam)} bg-white drop-shadow rounded-md w-full text-xs sm:text-base sm:px-4`}>
                     <div className="flex justify-between">
                             <div>Total KDR:</div>
-                            <div className="flex">{teams[1].total_kdr}({teams[1].total_kdr && teams[2].total_kdr && getKdrChange(teams[1].total_kdr, teams[2].total_kdr)})</div>
+                            <div className="flex">{teams[1]?.total_kdr}<div className="flex sm:visible hidden">({teams[1].total_kdr && teams[2].total_kdr && getKdrChange(teams[1].total_kdr, teams[2].total_kdr)})</div></div>
                         </div>
                         <div className="flex justify-between">
                             <div>Avg KDR:</div>
-                            <div className="flex">{teams[1].avg_kdr}({teams[1].avg_kdr && teams[2].avg_kdr && getKdrChange(teams[1].avg_kdr, teams[2].avg_kdr)})</div>
+                            <div className="flex">{teams[1]?.avg_kdr}<div className="flex sm:visible hidden">({teams[1].avg_kdr && teams[2].avg_kdr && getKdrChange(teams[1].avg_kdr, teams[2].avg_kdr)})</div></div>
                         </div>
                     </div>
-                    <div className={` ${getTeamBorder(1, currUserTeam)} bg-white drop-shadow rounded-md flex flex-col content-center gap-2 p-2`}>
+                    <div key={"team1_"+ teams[1].geeks.length+activeTeam} className={` ${getTeamBorder(1, currUserTeam)} bg-white drop-shadow rounded-md flex flex-col content-center gap-1 sm:p-2 h-full w-full`}>
                         {teams[1]?.geeks?.map((geek: Geek) => {
-                            return <TeamPlayerCard playerData={geek} selected={selected} select={selectGeek} teamId={1} key={geek.geek_id}/>
+                            return <TeamPlayerCard playerData={geek} selected={selected} select={selectGeek} teamId={teams[1].team_id} key={teams[1].team_id  + "_" + geek.geek_id}/>
                         })}
                     </div>
                 </div>
                 
-                <div className="flex flex-col w-full h-full p-1 gap-1 content-centerr">
-                    <h1 className={`font-xl font-bold text-center w-fit px-3 m-auto ${getTeamNameStyle(0, currUserTeam)}`}>Unpicked</h1>
-                    <div className={` ${getTeamBorder(0, currUserTeam)} bg-white drop-shadow rounded-md flex flex-col content-center gap-2 p-2`}>
+                <div className="flex flex-col w-full sm:p-1 gap-1 content-center w-[120px] sm:w-full items-center">
+                    <h1 className={`text-xs text-center sm:text-xl font-bold text-center w-full overflow-clip sm:w-fit sm:px-3 text-nowrap ${getTeamNameStyle(0, currUserTeam)}`}>Unpicked</h1>
+                    <div key={"team0_"+ teams[0].geeks.length+activeTeam} className={` ${getTeamBorder(0, currUserTeam)} bg-white drop-shadow rounded-md flex flex-col content-center gap-2 sm:p-2 h-full w-full`}>
                         {teams[0]?.geeks?.map((geek: Geek) => {
-                            return <TeamPlayerCard playerData={geek} selected={selected} select={selectGeek} teamId={0} key={geek.geek_id}/>
+                            return <TeamPlayerCard playerData={geek} selected={selected} select={selectGeek} teamId={teams[0].team_id} key={teams[0].team_id  + "_" + geek.geek_id}/>
                         })}
                     </div>
                 </div>
                 
-                <div className="flex flex-col w-full h-full p-1 gap-1">
-                    <h1 className={`font-xl font-bold text-center w-fit px-3  m-auto ${getTeamNameStyle(2, currUserTeam)}`}>{teams[2].name ?? "Team 2"}</h1>
-                    <div className={` ${getTeamBorder(2, currUserTeam)} bg-white drop-shadow rounded-md`}>
+                <div className="flex flex-col sm:p-1 gap-1 content-center w-[120px] sm:w-full items-center">
+                    <h1 className={`text-xs text-center sm:text-xl font-bold text-center w-full overflow-clip sm:w-fit sm:px-3 text-nowrap ${getTeamNameStyle(2, currUserTeam)}`}>{teams[2].name ?? "Team 2"}</h1>
+                    <div className={` ${getTeamBorder(2, currUserTeam)} bg-white drop-shadow rounded-md w-full text-xs sm:text-base sm:px-4`}>
                         <div className="flex justify-between">
                             <div>Total KDR:</div>
-                            <div className="flex">{teams[2].total_kdr}({teams[1].total_kdr && teams[2].total_kdr && getKdrChange(teams[2].total_kdr, teams[1].total_kdr)})</div>
+                            <div className="flex">
+                                {teams[2]?.total_kdr}
+                                <div className="flex sm:visible hidden">
+                                    ({teams[1].total_kdr && teams[2].total_kdr && getKdrChange(teams[2].total_kdr, teams[1].total_kdr)})
+                                </div>
+                            </div>
                         </div>
                         <div className="flex justify-between">
                             <div>Avg KDR:</div>
-                            <div className="flex">{teams[2].avg_kdr}({teams[1].avg_kdr && teams[2].avg_kdr && getKdrChange(teams[2].avg_kdr, teams[1].avg_kdr)})</div>
+                            <div className="flex">
+                                {teams[2]?.avg_kdr}
+                                <div className="flex sm:visible hidden">
+                                    ({teams[1].avg_kdr && teams[2].avg_kdr && getKdrChange(teams[2].avg_kdr, teams[1].avg_kdr)})
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className={` ${getTeamBorder(2, currUserTeam)} bg-white drop-shadow rounded-md flex flex-col content-center gap-2 p-2`}>
+                    <div key={"team2_"+ teams[2].geeks.length+activeTeam} className={` ${getTeamBorder(2, currUserTeam)} bg-white drop-shadow rounded-md flex flex-col content-center gap-2 sm:p-2 w-full`}>
                         {teams[2]?.geeks?.map((geek: Geek) => {
-                            return <TeamPlayerCard playerData={geek} selected={selected} select={selectGeek} teamId={2} key={geek.geek_id}/>
+                            return <TeamPlayerCard playerData={geek} selected={selected} select={selectGeek} teamId={teams[2].team_id} key={teams[2].team_id  + "_" + geek.geek_id}/>
                         })}
                     </div>
                 </div>
             </div>
-            {activeTeam === currUserTeam &&
-                <div className="fixed bottom-10 inset-x-0 text-center w-full sm:w-8/12 m-auto bg-white rounded-3xl px-8 pb-4 pt-2 gap-2.5 flex flex-row sm:flex-col">
-                    <div className="font-bold">{(selected && selected[1] === currUserTeam ? "Remove": "Pick") + " " + ((selected && selected[0]?.handle) ?? "Team Member")}</div>
-                    <p className="text-red-500">{pickError}</p>
-                    {selected && <button className="bg-red-800 font-bold text-white rounded-full w-full py-1.5" onClick={()=>handleSubmit()}>Submit</button>}
+            {canUserPick ?
+                <div className="fixed bottom-10 inset-x-0 text-center w-full sm:w-8/12 m-auto bg-white rounded-3xl px-2 sm:px-8 py-2 gap-2.5 flex flex-row sm:flex-col items-center drop-shadow-xl">
+                    <div className="font-bold whitespace-nowrap w-full">{(selected && selected[1] === currUserTeam ? "Remove": "Pick") + " " + ((selected && selected[0]?.handle) ?? "Team Member")}</div>
+                    <p className="text-red-500">{pickError}{canUserPick ?? "bruh"} </p>
+                    {selected && <button className="bg-red-800 font-bold text-white rounded-full sm:w-full px-2.5 py-1.5 w-40" onClick={()=>handleSubmit()}>Submit</button>}
+                    {/* {<button className="bg-red-800 font-bold text-white rounded-full sm:w-full px-2.5 py-1.5 w-40" onClick={()=>endTurn()}>End Turn</button>} */}
+                </div>
+                :
+                <div className="fixed bottom-10 inset-x-0 text-center w-full sm:w-8/12 m-auto bg-white rounded-3xl px-2 sm:px-8 py-2 gap-2.5 flex flex-row sm:flex-col items-center drop-shadow-xl">
+                    <div className="font-bold whitespace-nowrap w-full">Waiting for {currUserTeam !== activeTeam && "other "}captain to pick...</div>
                 </div>
             }
         </div>

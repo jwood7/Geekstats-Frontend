@@ -4,7 +4,8 @@ const nextConfig = {
         serverActions: {
           allowedOrigins: [
             'localhost:3000', // localhost
-            'gfstats.duckdns.org', // Codespaces
+            'gfstats.duckdns.org', // Codespaces\
+            'newstats.geekfestclan.com', 
           ],
         },
       },
