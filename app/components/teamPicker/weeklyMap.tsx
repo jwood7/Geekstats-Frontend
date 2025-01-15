@@ -6,8 +6,8 @@ export default function WeeklyMap({match}: {match: Map}) {
     return (
         <div className="flex drop-shadow bg-neutral-200 w-full h-fit px-2 rounded content-center">
             <div className="bg-neutral-500 my-auto mr-1.5">
-                {(process.env.NEXT_PUBLIC_MEDIA_URL && match.thumbnail) ? 
-                <img className="h-10" src={process.env.NEXT_PUBLIC_MEDIA_URL + "/" + match.thumbnail} alt={match.map_name}/> 
+                { match.thumbnail ? 
+                <img className="h-10" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/" + match.thumbnail} alt={match.map_name}/> 
             :
                 <img className="h-10" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/map_not_found.jpg"} alt={match.map_name}/>
             }

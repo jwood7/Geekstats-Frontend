@@ -31,6 +31,8 @@ type Team = {
     geeks: Geek[],
     total_kdr?: number,
     avg_kdr?: number,
+    online_total_kdr?: number,
+    online_avg_kdr?: number,
     captain_id?: number,
     co_captain_id?: number,
 }
@@ -84,11 +86,17 @@ export default function TeamPicker() {
         if (!teamsCopy || teamsCopy.length <= 0 || !teamsCopy[teamId].geeks || teamsCopy[teamId].geeks.length <= 0){
             return teamsCopy[teamId];
         }
+        let onlineCount = 0;
         const sum = teamsCopy[teamId].geeks.reduce(function(a, b){
             return a + b.alltime_kdr;
         }, 0);
-        const avg = sum/teamsCopy[teamId].geeks.length
-        teamsCopy[teamId] = {...teamsCopy[teamId], avg_kdr: parseFloat(avg.toFixed(2)), total_kdr: parseFloat(sum.toFixed(2))}
+        const onlineSum = teamsCopy[teamId].geeks.reduce(function(a, b){
+            if (b.attending) onlineCount += 1;
+            return a + (b.attending ? b.alltime_kdr : 0);
+        }, 0);
+        const avg = sum/teamsCopy[teamId].geeks.length;
+        const onlineAvg = onlineSum/onlineCount;
+        teamsCopy[teamId] = {...teamsCopy[teamId], avg_kdr: parseFloat(avg.toFixed(2)), total_kdr: parseFloat(sum.toFixed(2)), online_avg_kdr: parseFloat(onlineAvg.toFixed(2)), online_total_kdr: parseFloat(onlineSum.toFixed(2))}
         // setTeams(teamsCopy);
         return teamsCopy[teamId];
     }
@@ -125,8 +133,6 @@ export default function TeamPicker() {
             {team_id: teamData[0]?.team_id, name: teamData[0]?.team_name, geeks: teamData[0]?.team, captain_id: teamData[0]?.captain_id, co_captain_id: teamData[0]?.co_captain_id }, 
             {team_id: teamData[1]?.team_id, name: teamData[1]?.team_name, geeks: teamData[1]?.team, captain_id: teamData[1]?.captain_id, co_captain_id: teamData[1]?.co_captain_id }, 
         ]);
-        formattedTeams[1] = calculateTeamKDR(1, formattedTeams);
-        formattedTeams[2] = calculateTeamKDR(2, formattedTeams);
         const discordData: Geek[] = await getDiscordAttendees();
         // loop through teams, if player in discordData, remove them from DiscordData, else mark them as not attending
         // Get remaining players stats, sort by kdr, and add them to unpicked
@@ -163,6 +169,8 @@ export default function TeamPicker() {
     
         // Now unpicked contains geeks sorted by KDR
         formattedTeams[0] = { team_id: -1, name: teamData[0]?.team_name, geeks: unpicked };
+        formattedTeams[1] = calculateTeamKDR(1, formattedTeams);
+        formattedTeams[2] = calculateTeamKDR(2, formattedTeams);
         setTeams(formattedTeams);
     }
 
@@ -286,12 +294,44 @@ export default function TeamPicker() {
                     <h1 className={`text-xs text-center sm:text-xl font-bold text-center w-full overflow-clip sm:w-fit sm:px-3 text-nowrap ${getTeamNameStyle(1, currUserTeam)}`}>{teams[1].name ?? "Team 1"}</h1>
                     <div className={` ${getTeamBorder(1, currUserTeam)} bg-white drop-shadow rounded-md w-full text-xs sm:text-base sm:px-4`}>
                     <div className="flex justify-between">
-                            <div>Total KDR:</div>
-                            <div className="flex">{teams[1]?.total_kdr}<div className="flex sm:visible hidden">({teams[1].total_kdr && teams[2].total_kdr && getKdrChange(teams[1].total_kdr, teams[2].total_kdr)})</div></div>
+                            <div className="sm:font-semibold">Total KDR:</div>
+                            <div className="flex gap-0.5">
+                                
+                                <span className="flex sm:font-semibold" title="KDR for attending team members">
+                                    {teams[1]?.online_total_kdr}
+                                    <div className="flex sm:visible max-sm:hidden">
+                                        ({teams[1].online_total_kdr && teams[2].online_total_kdr && getKdrChange(teams[1].online_total_kdr, teams[2].online_total_kdr)})
+                                    </div>
+                                </span>
+                                <div className="sm:visible max-sm:hidden">/</div>
+                                <span className="flex opacity-50 sm:visible max-sm:hidden" title="KDR for all team members">
+                                    {teams[1]?.total_kdr}
+                                    <div className="flex sm:visible max-sm:hidden">
+                                        ({teams[1].total_kdr && teams[2].total_kdr && getKdrChange(teams[1].total_kdr, teams[2].total_kdr)})
+                                    </div>
+                                </span>
+                                
+                            </div>
                         </div>
                         <div className="flex justify-between">
-                            <div>Avg KDR:</div>
-                            <div className="flex">{teams[1]?.avg_kdr}<div className="flex sm:visible hidden">({teams[1].avg_kdr && teams[2].avg_kdr && getKdrChange(teams[1].avg_kdr, teams[2].avg_kdr)})</div></div>
+                            <div className="sm:font-semibold">Avg KDR:</div>
+                            <div className="flex gap-0.5">
+                                
+                                <span className="flex sm:font-semibold" title="KDR for attending team members">
+                                    {teams[1]?.online_avg_kdr}
+                                    <div className="flex sm:visible max-sm:hidden">
+                                        ({teams[1].online_avg_kdr && teams[2].online_avg_kdr && getKdrChange(teams[1].online_avg_kdr, teams[2].online_avg_kdr)})
+                                    </div>
+                                </span>
+                                <div className="sm:visible max-sm:hidden">/</div>
+                                <span className="flex opacity-50 sm:visible max-sm:hidden" title="KDR for all team members">
+                                    {teams[1]?.avg_kdr}
+                                    <div className="flex sm:visible max-sm:hidden">
+                                        ({teams[1].avg_kdr && teams[2].avg_kdr && getKdrChange(teams[1].avg_kdr, teams[2].avg_kdr)})
+                                    </div>
+                                </span>
+                                
+                            </div>
                         </div>
                     </div>
                     <div key={"team1_"+ teams[1].geeks.length+activeTeam} className={` ${getTeamBorder(1, currUserTeam)} bg-white drop-shadow rounded-md flex flex-col content-center gap-1 sm:p-2 h-full w-full`}>
@@ -314,21 +354,43 @@ export default function TeamPicker() {
                     <h1 className={`text-xs text-center sm:text-xl font-bold text-center w-full overflow-clip sm:w-fit sm:px-3 text-nowrap ${getTeamNameStyle(2, currUserTeam)}`}>{teams[2].name ?? "Team 2"}</h1>
                     <div className={` ${getTeamBorder(2, currUserTeam)} bg-white drop-shadow rounded-md w-full text-xs sm:text-base sm:px-4`}>
                         <div className="flex justify-between">
-                            <div>Total KDR:</div>
-                            <div className="flex">
-                                {teams[2]?.total_kdr}
-                                <div className="flex sm:visible hidden">
-                                    ({teams[1].total_kdr && teams[2].total_kdr && getKdrChange(teams[2].total_kdr, teams[1].total_kdr)})
-                                </div>
+                            <div className="sm:font-semibold">Total KDR:</div>
+                            <div className="flex gap-0.5">
+                                
+                                <span className="flex sm:font-semibold" title="KDR for attending team members">
+                                    {teams[2]?.online_total_kdr}
+                                    <div className="flex sm:visible max-sm:hidden">
+                                        ({teams[1].online_total_kdr && teams[2].online_total_kdr && getKdrChange(teams[2].online_total_kdr, teams[1].online_total_kdr)})
+                                    </div>
+                                </span>
+                                <div className="sm:visible max-sm:hidden">/</div>
+                                <span className="flex opacity-50 sm:visible max-sm:hidden" title="KDR for all team members">
+                                    {teams[2]?.total_kdr}
+                                    <div className="flex sm:visible max-sm:hidden">
+                                        ({teams[1].total_kdr && teams[2].total_kdr && getKdrChange(teams[2].total_kdr, teams[1].total_kdr)})
+                                    </div>
+                                </span>
+                                
                             </div>
                         </div>
                         <div className="flex justify-between">
-                            <div>Avg KDR:</div>
-                            <div className="flex">
-                                {teams[2]?.avg_kdr}
-                                <div className="flex sm:visible hidden">
-                                    ({teams[1].avg_kdr && teams[2].avg_kdr && getKdrChange(teams[2].avg_kdr, teams[1].avg_kdr)})
-                                </div>
+                            <div className="sm:font-semibold">Avg KDR:</div>
+                            <div className="flex gap-0.5">
+                                
+                                <span className="flex sm:font-semibold" title="KDR for attending team members">
+                                    {teams[2]?.online_avg_kdr}
+                                    <div className="flex sm:visible max-sm:hidden">
+                                        ({teams[1].online_avg_kdr && teams[2].online_avg_kdr && getKdrChange(teams[2].online_avg_kdr, teams[1].online_avg_kdr)})
+                                    </div>
+                                </span>
+                                <div className="sm:visible max-sm:hidden">/</div>
+                                <span className="flex opacity-50 sm:visible max-sm:hidden" title="KDR for all team members">
+                                    {teams[2]?.avg_kdr}
+                                    <div className="flex sm:visible max-sm:hidden">
+                                        ({teams[1].avg_kdr && teams[2].avg_kdr && getKdrChange(teams[2].avg_kdr, teams[1].avg_kdr)})
+                                    </div>
+                                </span>
+                                
                             </div>
                         </div>
                     </div>
