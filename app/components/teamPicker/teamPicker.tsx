@@ -201,7 +201,7 @@ export default function TeamPicker() {
     }
 
     async function retrieveMaps(){
-        const mapData = await getMatches("2024-09-18");
+        const mapData = await getMatches();
         setMaps(mapData);
     }
 
