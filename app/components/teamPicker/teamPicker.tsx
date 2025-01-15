@@ -213,21 +213,16 @@ export default function TeamPicker() {
         setMaps(mapData);
     }
 
-    // async function endTurn(){
-    //     // if (picks.length > 0){
-    //     //     for (let i = 0; i<picks.length; i++){
-    //     //         console.log("Sending pick");
-    //     //         const [sentGeek, sentTeam, sentAction] = picks[i];
-    //     //         const success = await sendPick(sentGeek, sentTeam, sentAction);
-    //     //         console.log(success);
-    //     //     }
-    //     // }
-    //     const endTurn = await endPickTurn();
-    //     if (!endTurn){
-    //         setPickError("Failed to end turn");
-    //     }
-    //     await pollPickFlag();
-    // }
+    async function endTurn(){
+        const endTurn = await endPickTurn();
+        if (!endTurn){
+            setPickError("Failed to end turn");
+        }else{
+            setActiveTeam(activeTeam === teams[1].team_id ? teams[2].team_id : teams[1].team_id);
+        }
+        setCanUserPick(false);
+        await retrieveTeams();
+    }
 
     async function pollPickFlag(longPoll:boolean = true){
         
@@ -405,8 +400,10 @@ export default function TeamPicker() {
                 <div className="fixed bottom-10 inset-x-0 text-center w-full sm:w-8/12 m-auto bg-white rounded-3xl px-2 sm:px-8 py-2 gap-2.5 flex flex-row sm:flex-col items-center drop-shadow-xl">
                     <div className="font-bold whitespace-nowrap w-full">{(selected && selected[1] === currUserTeam ? "Remove": "Pick") + " " + ((selected && selected[0]?.handle) ?? "Team Member")}</div>
                     <p className="text-red-500">{pickError}{canUserPick ?? "bruh"} </p>
-                    {selected && <button className="bg-red-800 font-bold text-white rounded-full sm:w-full px-2.5 py-1.5 w-40" onClick={()=>handleSubmit()}>Submit</button>}
-                    {/* {<button className="bg-red-800 font-bold text-white rounded-full sm:w-full px-2.5 py-1.5 w-40" onClick={()=>endTurn()}>End Turn</button>} */}
+                    <div className="flex w-full gap-10">
+                    {<button className="bg-neutral-500 font-bold text-white rounded-full sm:w-full px-2.5 py-1.5 w-40" onClick={()=>endTurn()}>Skip Turn</button>}
+                        {selected && <button className="bg-red-800 font-bold text-white rounded-full sm:w-full px-2.5 py-1.5 w-40" onClick={()=>handleSubmit()}>Submit</button>}
+                    </div>
                 </div>
                 :
                 <div className="fixed bottom-10 inset-x-0 text-center w-full sm:w-8/12 m-auto bg-white rounded-3xl px-2 sm:px-8 py-2 gap-2.5 flex flex-row sm:flex-col items-center drop-shadow-xl">
