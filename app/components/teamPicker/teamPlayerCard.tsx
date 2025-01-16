@@ -12,7 +12,7 @@ export function getKdrChange(alltime_kdr: number, kdr: number){
     return <div>{kdrDiff}</div>
 }
 
-export default function TeamPlayerCard({playerData, selected, select, teamId} : {playerData: Geek, selected: [Geek, number] | null, select: (geek: Geek, teamId: number)=>void, teamId: number}) {
+export default function TeamPlayerCard({playerData, selected, select, teamId, isCaptain, isCoCaptain} : {playerData: Geek, selected: [Geek, number] | null, select: (geek: Geek, teamId: number)=>void, teamId: number, isCaptain?: boolean, isCoCaptain?: boolean}) {
 
     const [open, setOpen] = useState<boolean>(false);
     // this function is reused in scoreboard. Should probably move to a new file and import, although that version has bg-.
@@ -51,7 +51,11 @@ export default function TeamPlayerCard({playerData, selected, select, teamId} : 
                 <div className="w-20 h-20 bg-neutral-500 my-auto rounded overflow-clip">{process.env.NEXT_PUBLIC_IMAGE_URL && <img src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/geeks/" + playerData?.handle?.toLowerCase() + ".png"} alt={playerData?.handle}/> }</div>
             </div>
             <div className="w-full flex flex-col sm:pt-2.5">
-                <div className="text-sm sm:text-xl font-bold text-center sm:text-start">{playerData?.handle}</div>
+                <div className="text-sm sm:text-xl font-bold text-center sm:text-start">
+                    {playerData?.handle}
+                    {isCaptain && <span title={`${playerData?.handle} is the captain`}>**</span>}
+                    {isCoCaptain && <span title={`${playerData?.handle} is the co-captain`}>*</span>}
+                </div>
                 <div className="flex flex-col sm:flex-row text-xs py-0.5 gap-1 sm:gap-4 px-1 sm:px-0" onClick={()=>{setOpen(!open)}}>
                     <div className="flex sm:flex-col justify-between sm:justify-start gap-2.5 items-center">
                         <div>KDR</div>

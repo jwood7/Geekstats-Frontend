@@ -331,7 +331,7 @@ export default function TeamPicker() {
                     </div>
                     <div key={"team1_"+ teams[1].geeks.length+activeTeam} className={` ${getTeamBorder(1, currUserTeam)} bg-white drop-shadow rounded-md flex flex-col content-center gap-1 sm:p-2 h-full w-full`}>
                         {teams[1]?.geeks?.map((geek: Geek) => {
-                            return <TeamPlayerCard playerData={geek} selected={selected} select={selectGeek} teamId={teams[1].team_id} key={teams[1].team_id  + "_" + geek.geek_id}/>
+                            return <TeamPlayerCard playerData={geek} selected={selected} select={selectGeek} teamId={teams[1].team_id} key={teams[1].team_id  + "_" + geek.geek_id} isCaptain={teams[1].captain_id === geek.geek_id} isCoCaptain={teams[1].co_captain_id === geek.geek_id}/>
                         })}
                     </div>
                 </div>
@@ -391,7 +391,7 @@ export default function TeamPicker() {
                     </div>
                     <div key={"team2_"+ teams[2].geeks.length+activeTeam} className={` ${getTeamBorder(2, currUserTeam)} bg-white drop-shadow rounded-md flex flex-col content-center gap-2 sm:p-2 w-full`}>
                         {teams[2]?.geeks?.map((geek: Geek) => {
-                            return <TeamPlayerCard playerData={geek} selected={selected} select={selectGeek} teamId={teams[2].team_id} key={teams[2].team_id  + "_" + geek.geek_id}/>
+                            return <TeamPlayerCard playerData={geek} selected={selected} select={selectGeek} teamId={teams[2].team_id} key={teams[2].team_id  + "_" + geek.geek_id } isCaptain={teams[2].captain_id === geek.geek_id} isCoCaptain={teams[2].co_captain_id === geek.geek_id}/>
                         })}
                     </div>
                 </div>
