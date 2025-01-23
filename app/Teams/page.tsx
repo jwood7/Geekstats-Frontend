@@ -25,7 +25,7 @@ useEffect(()=>{
         <div className="flex justify-between sm:gap-10 items-center">
           {process.env.NEXT_PUBLIC_IMAGE_URL ? <img className="w-[200px] sm:max-w-xs p-2.5" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/gf_header.gif"} alt="Geekfest"/> : <h1>Geekfest</h1>}
           <Link className="text-neutral-500" href="/">Summary</Link>
-          <Link className="text-neutral-500" href="/Teams">Teams</Link>
+          <Link className="text-neutral-500" href="/teams">Teams</Link>
         </div>
         <button className="pr-5" onClick={() => setOpenLoginModal(!openLoginModal)}>
           {
