@@ -74,7 +74,7 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
 
     function createRow(row: any, index: number){
       return <tr key={index} className={getTierColor(row.tier_name)}>
-        <td className=" sm:px-2">{row.rank}</td>
+        <td className=" sm:px-2">{filter === "tier" ? row.rank_in_tier : row.rank}</td>
         <td className=" sm:px-2 underline"><a href={"http://stats.geekfestclan.com/PlayerDetails?pid=" + row.geek_id}>{row.handle}</a></td>
         {view === 'default' && (
             <>
