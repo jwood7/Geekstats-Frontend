@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import TierWinner from "./tierWinner";
-import { getTiers } from "../../actions";
+import { getTeams, getTiers } from "../../actions";
+import React from "react";
 
 
 export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
     const tiers: {master:number[],  gold: number[], silver: number[], bronze: number[],} = { master: [],  gold: [], silver: [], bronze: [],};
     let tierView: number[] = [];
+    let teamView: number[] = [];
     const [view, setView] = useState('default'); 
+    const [teams, setTeams] = useState<Record<string, number[]>>({}); 
     const [filter, setFilter] = useState('default'); 
     const [tierRestrictions, setTierRestrictions] = useState<{tier_id: number, tier_name: string, tier_description: string, tier_restrict_max: number, tier_weapon_restrict: string[], tier_armor_restrict:boolean[]}[] >([]); 
     
@@ -25,6 +28,29 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
             }
             tierView = [...tiers.master, ...tiers.gold, ...tiers.silver, ...tiers.bronze]; 
         }
+    }
+
+    // This is so inefficient, should revise at some point
+    async function findTeams(){
+      const teamData = await getTeams();
+      let teamRecord: Record<string, number[]> = {}
+      if (params.tableData){
+        for (let i = 0; i < params.tableData?.length; i++){
+          for (let t = 0; t < teamData.length; t++){ // team has a lot more values, but I am too lazy to define them rn
+            for (let geek = 0; geek < teamData[t].team.length; geek++){ 
+              if (params.tableData[i].geek_id === teamData[t].team[geek].geek_id){
+                if (teamRecord.hasOwnProperty(teamData[t].team_name)){
+                  teamRecord[teamData[t].team_name].push(i);
+                }else{
+                  teamRecord[teamData[t].team_name] = [i];
+                }
+              }
+            }
+          }
+        }
+      }
+      setTeams(teamRecord);
+
     }
 
     async function getTierRestrictions(){
@@ -79,7 +105,7 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
 
     findTierWinners(); // this is ineffecient when switching between seasons and night views, since it has to rerun every time
     // should import season data, night data, and isNight from page, and process them on first run, then swap between as needed
-    
+
     const toggleView = () => {
         setView(view === 'default' ? 'extended' : 'default');
       };
@@ -87,6 +113,10 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
       useEffect(()=>{
         getTierRestrictions()
       }, []);
+
+      useEffect(()=>{
+        findTeams();
+      }, [params.isNight, params.tableData]);
     
       return (
         <div className=" mx-auto p-3 rounded-2xl bg-white drop-shadow-xl w-full text-xs sm:text-base">
@@ -139,6 +169,20 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
             {filter == "tier" && tierView && tierView.map((row: any, index:number) => (
               createRow(params.tableData[row], index)
             ))}
+            {filter == "team" && teams && Object.entries(teams).map(([name, geeks]) => {
+              return (<React.Fragment key={`team-${name}`}>
+                <tr className="bg-red-800 text-white w-full" key={name}>
+                  <td colSpan={100} className="font-bold sm:px-2">{name}</td>
+                </tr>
+                {
+                  geeks.map((row: number, index: number) => {
+                    return createRow(params.tableData[row], index);
+                  })
+                }
+              </React.Fragment>)
+            }
+              
+            )}
           </tbody>
         </table>
       </div>
