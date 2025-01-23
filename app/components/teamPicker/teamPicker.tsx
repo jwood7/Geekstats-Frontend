@@ -226,9 +226,7 @@ export default function TeamPicker() {
 
     async function pollPickFlag(longPoll:boolean = true){
         
-        const userId = getCookie("userId") ?? -1;
-
-        if (activeTeam !== currUserTeam && userId !== -1){
+        if (activeTeam !== currUserTeam){
             let pickFlag;
             if (longPoll){
                 pickFlag = await checkPickFlag();

@@ -121,6 +121,11 @@ export async function logout() {
 
     }catch(e){
         console.error(e);
+        // Always delete cookies on client side to get stuck logged out after cookie expires
+        cookies().delete('userId');
+        cookies().delete('username');
+        cookies().delete('isAdmin');
+        cookies().delete('isStaff');
         return e;
     }
 }
