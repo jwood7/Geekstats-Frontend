@@ -7,7 +7,6 @@ import React from "react";
 export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
     const tiers: {master:number[],  gold: number[], silver: number[], bronze: number[],} = { master: [],  gold: [], silver: [], bronze: [],};
     let tierView: number[] = [];
-    let teamView: number[] = [];
     const [view, setView] = useState('default'); 
     const [teams, setTeams] = useState<Record<string, number[]>>({}); 
     const [filter, setFilter] = useState('default'); 
@@ -33,7 +32,7 @@ export default function Scoreboard(params: {isNight: boolean, tableData: any}) {
     // This is so inefficient, should revise at some point
     async function findTeams(){
       const teamData = await getTeams();
-      let teamRecord: Record<string, number[]> = {}
+      const teamRecord: Record<string, number[]> = {}
       if (params.tableData){
         for (let i = 0; i < params.tableData?.length; i++){
           for (let t = 0; t < teamData.length; t++){ // team has a lot more values, but I am too lazy to define them rn
