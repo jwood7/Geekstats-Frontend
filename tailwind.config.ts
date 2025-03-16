@@ -11,7 +11,7 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        master: "#FEE101",
+        master: "#8B0000",
         gold: "#D6AF36",
         silver: "#D7D7D7",
         bronze: "#A77044",
