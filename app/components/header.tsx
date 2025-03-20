@@ -22,7 +22,6 @@ useEffect(()=>{
           {process.env.NEXT_PUBLIC_IMAGE_URL ? <img className="w-[245.8px] sm:max-w-xs mr-2.5" src={process.env.NEXT_PUBLIC_IMAGE_URL + "/images/gf_header.gif"} alt="Geekfest"/> : <h1>Geekfest</h1>}
           <Link className="text-neutral-500 hover:text-red-800" href="/">Summary</Link>
           <Link className="text-neutral-500 hover:text-red-800" href="/teams">Teams</Link>
-          <Link className="text-neutral-500 hover:text-red-800" href="/teams">Teams</Link>
           {process.env.NEXT_PUBLIC_REFERENCE_URL && <Link className="text-neutral-500 hover:text-red-800" href={process.env.NEXT_PUBLIC_REFERENCE_URL+"/matches"}>Matches</Link>}
           {process.env.NEXT_PUBLIC_REFERENCE_URL && <Link className="text-neutral-500 hover:text-red-800" href={process.env.NEXT_PUBLIC_REFERENCE_URL+"/matches"}>Weapons</Link>}
           {process.env.NEXT_PUBLIC_REFERENCE_URL && <Link className="text-neutral-500 hover:text-red-800" href={process.env.NEXT_PUBLIC_REFERENCE_URL+"/matches"}>Awards</Link>}
