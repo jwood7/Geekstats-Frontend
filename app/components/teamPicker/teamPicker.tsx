@@ -80,10 +80,11 @@ export default function TeamPicker() {
     const [activeTeam, setActiveTeam] = useState(-2);
     const [pickError, setPickError] = useState("");
     const [maps, setMaps] = useState<Map[]>([]);
-
+    const [isPolling, setIsPolling] = useState(false);
+    const [isRetrieving, setIsRetrieving] = useState(false);
     const calculateTeamKDR = (teamId: number, staticTeams?: Team[]) =>{
         const teamsCopy = staticTeams ?? teams;
-        if (!teamsCopy || teamsCopy.length <= 0 || !teamsCopy[teamId].geeks || teamsCopy[teamId].geeks.length <= 0){
+        if (!teamsCopy || teamsCopy.length <= 0 || !teamsCopy[teamId].geeks || teamsCopy[teamId].geeks?.length <= 0){
             return teamsCopy[teamId];
         }
         let onlineCount = 0;
@@ -94,7 +95,7 @@ export default function TeamPicker() {
             if (b.attending) onlineCount += 1;
             return a + (b.attending ? b.alltime_kdr : 0);
         }, 0);
-        const avg = sum/teamsCopy[teamId].geeks.length;
+        const avg = sum/teamsCopy[teamId].geeks?.length;
         const onlineAvg = onlineSum/onlineCount;
         teamsCopy[teamId] = {...teamsCopy[teamId], avg_kdr: parseFloat(avg.toFixed(2)), total_kdr: parseFloat(sum.toFixed(2)), online_avg_kdr: parseFloat(onlineAvg.toFixed(2)), online_total_kdr: parseFloat(onlineSum.toFixed(2))}
         // setTeams(teamsCopy);
@@ -138,23 +139,23 @@ export default function TeamPicker() {
         // Get remaining players stats, sort by kdr, and add them to unpicked
         const userId = getCookie("userId") ?? -1;
         formattedTeams.slice(1).forEach(team => {
-            team.geeks.forEach(geek => {
-                if (userId == geek.geek_id){
-                    setCurrUserTeam(team.team_id);
-                }
-                const discordGeekIndex = discordData.findIndex(dg => dg.discord === geek.discord);
-                if (discordGeekIndex !== -1) {
-                    // Geek is attending, remove them from discordData
-                    discordData.splice(discordGeekIndex, 1);
-                    geek.attending = true;
-                } else {
-                    // Geek is not attending, mark as not attending
-                    geek.attending = false;
-                }
-            });
+            if (team.geeks && team.geeks?.length > 0){
+                team.geeks.forEach(geek => {
+                    if (userId == geek.geek_id){
+                        setCurrUserTeam(team.team_id);
+                    }
+                    const discordGeekIndex = discordData.findIndex(dg => dg.discord === geek.discord);
+                    if (discordGeekIndex !== -1) {
+                        // Geek is attending, remove them from discordData
+                        discordData.splice(discordGeekIndex, 1);
+                        geek.attending = true;
+                    } else {
+                        // Geek is not attending, mark as not attending
+                        geek.attending = false;
+                    }
+                });
+            }
         });
-
-    
         // Now, gather remaining geeks in discordData and sort by KDR
         const unpicked = discordData.map(dg => {
             return {
@@ -162,8 +163,6 @@ export default function TeamPicker() {
                 attending: true
             };
         });
-
-    
         // Sort unpicked geeks by KDR (you can change the KDR field depending on your needs)
         unpicked.sort((a: Geek, b: Geek) => b.alltime_kdr - a.alltime_kdr);
     
@@ -225,14 +224,15 @@ export default function TeamPicker() {
     }
 
     async function pollPickFlag(longPoll:boolean = true){
-        
-        if (activeTeam !== currUserTeam){
+        if (!canUserPick){
             let pickFlag;
+            setIsPolling(true);
             if (longPoll){
                 pickFlag = await checkPickFlag();
             }else{
                 pickFlag = await getPickFlag();
             }
+            setIsPolling(false);
             if (!pickFlag) return;
             if (pickFlag.pick_flag){
                 // User is the captain, set their team to the current team
@@ -243,11 +243,10 @@ export default function TeamPicker() {
             }else if (pickFlag.message == "No updates within timeout"){
                 setCanUserPick(false);
                 pollPickFlag();
-               
             }else{
                 setActiveTeam(pickFlag.current_team);
-                setCanUserPick(false);
                 await retrieveTeams();
+                setCanUserPick(false);
             }
         }
     }
@@ -327,7 +326,7 @@ export default function TeamPicker() {
                             </div>
                         </div>
                     </div>
-                    <div key={"team1_"+ teams[1].geeks.length+activeTeam} className={` ${getTeamBorder(1, currUserTeam)} bg-white drop-shadow rounded-md flex flex-col content-center gap-1 sm:p-2 h-full w-full`}>
+                    <div key={"team1_"+ teams[1].geeks?.length+activeTeam} className={` ${getTeamBorder(1, currUserTeam)} bg-white drop-shadow rounded-md flex flex-col content-center gap-1 sm:p-2 h-full w-full`}>
                         {teams[1]?.geeks?.map((geek: Geek) => {
                             return <TeamPlayerCard playerData={geek} selected={selected} select={selectGeek} teamId={teams[1].team_id} key={teams[1].team_id  + "_" + geek.geek_id} isCaptain={teams[1].captain_id === geek.geek_id} isCoCaptain={teams[1].co_captain_id === geek.geek_id}/>
                         })}
@@ -336,7 +335,7 @@ export default function TeamPicker() {
                 
                 <div className="flex flex-col w-full sm:p-1 gap-1 content-center w-[120px] sm:w-full items-center">
                     <h1 className={`text-xs text-center sm:text-xl font-bold text-center w-full overflow-clip sm:w-fit sm:px-3 text-nowrap ${getTeamNameStyle(0, currUserTeam)}`}>Unpicked</h1>
-                    <div key={"team0_"+ teams[0].geeks.length+activeTeam} className={` ${getTeamBorder(0, currUserTeam)} bg-white drop-shadow rounded-md flex flex-col content-center gap-2 sm:p-2 h-full w-full`}>
+                    <div key={"team0_"+ teams[0].geeks?.length+activeTeam} className={` ${getTeamBorder(0, currUserTeam)} bg-white drop-shadow rounded-md flex flex-col content-center gap-2 sm:p-2 h-full w-full`}>
                         {teams[0]?.geeks?.map((geek: Geek) => {
                             return <TeamPlayerCard playerData={geek} selected={selected} select={selectGeek} teamId={teams[0].team_id} key={teams[0].team_id  + "_" + geek.geek_id}/>
                         })}
@@ -387,13 +386,28 @@ export default function TeamPicker() {
                             </div>
                         </div>
                     </div>
-                    <div key={"team2_"+ teams[2].geeks.length+activeTeam} className={` ${getTeamBorder(2, currUserTeam)} bg-white drop-shadow rounded-md flex flex-col content-center gap-2 sm:p-2 w-full`}>
+                    <div key={"team2_"+ teams[2]?.geeks?.length+activeTeam} className={` ${getTeamBorder(2, currUserTeam)} bg-white drop-shadow rounded-md flex flex-col content-center gap-2 sm:p-2 h-full w-full`}>
                         {teams[2]?.geeks?.map((geek: Geek) => {
                             return <TeamPlayerCard playerData={geek} selected={selected} select={selectGeek} teamId={teams[2].team_id} key={teams[2].team_id  + "_" + geek.geek_id } isCaptain={teams[2].captain_id === geek.geek_id} isCoCaptain={teams[2].co_captain_id === geek.geek_id}/>
                         })}
                     </div>
                 </div>
             </div>
+            {(getCookie("userId") ?? "-1") === "18" && (
+            <div className="fixed z-20 bottom-10 left-10 text-center m-auto bg-red-800 text-white rounded-3xl text-sm drop-shadow-xl">
+                <h2 className="font-bold mb-2">Debug Info:</h2>
+                <div className="grid grid-cols-2 gap-2">
+                    <div>Active Team: {activeTeam}</div>
+                    <div>User Team: {currUserTeam}</div>
+                    <div>Can User Pick: {canUserPick ? "Yes" : "No"}</div>
+                    <div>Selected Player: {selected ? `${selected[0]?.handle} (Team ${selected[1]})` : "None"}</div>
+                    <div>Pick Error: {pickError || "None"}</div>
+                    <div>Is Polling: {isPolling ? "Yes" : "No"}</div>
+                    <div>Is Retrieving: {isRetrieving ? "Yes" : "No"}</div>
+                </div>
+            </div>
+            )
+            }
             {canUserPick ?
                 <div className="fixed bottom-10 inset-x-0 text-center w-full sm:w-8/12 m-auto bg-white rounded-3xl px-2 sm:px-8 py-2 gap-2.5 flex flex-row sm:flex-col items-center drop-shadow-xl">
                     <div className="font-bold whitespace-nowrap w-full">{(selected && selected[1] === currUserTeam ? "Remove": "Pick") + " " + ((selected && selected[0]?.handle) ?? "Team Member")}</div>
