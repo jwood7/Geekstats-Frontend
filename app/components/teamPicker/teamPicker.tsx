@@ -81,7 +81,6 @@ export default function TeamPicker() {
     const [pickError, setPickError] = useState("");
     const [maps, setMaps] = useState<Map[]>([]);
     const [isPolling, setIsPolling] = useState(false);
-    const [isRetrieving, setIsRetrieving] = useState(false);
     const calculateTeamKDR = (teamId: number, staticTeams?: Team[]) =>{
         const teamsCopy = staticTeams ?? teams;
         if (!teamsCopy || teamsCopy.length <= 0 || !teamsCopy[teamId].geeks || teamsCopy[teamId].geeks?.length <= 0){
@@ -403,7 +402,6 @@ export default function TeamPicker() {
                     <div>Selected Player: {selected ? `${selected[0]?.handle} (Team ${selected[1]})` : "None"}</div>
                     <div>Pick Error: {pickError || "None"}</div>
                     <div>Is Polling: {isPolling ? "Yes" : "No"}</div>
-                    <div>Is Retrieving: {isRetrieving ? "Yes" : "No"}</div>
                 </div>
             </div>
             )
