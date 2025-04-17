@@ -117,6 +117,8 @@ export async function logout() {
         cookies().delete('username');
         cookies().delete('isAdmin');
         cookies().delete('isStaff');
+        cookies().delete('csrftoken');
+        cookies().delete('sessionid');
         return "Logged out";
 
     }catch(e){
@@ -126,6 +128,8 @@ export async function logout() {
         cookies().delete('username');
         cookies().delete('isAdmin');
         cookies().delete('isStaff');
+        cookies().delete('csrftoken');
+        cookies().delete('sessionid');
         return e;
     }
 }
