@@ -235,7 +235,7 @@ export default function TeamPicker() {
             if (!pickFlag) return;
             if (pickFlag.pick_flag){
                 // User is the captain, set their team to the current team
-                setActiveTeam(currUserTeam);
+                setActiveTeam(pickFlag.current_team);
                 await retrieveTeams();
                 setSelected(null);
                 setCanUserPick(true);
